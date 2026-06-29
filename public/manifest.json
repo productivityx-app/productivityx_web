@@ -1,0 +1,22 @@
+{
+  "name": "ProductivityX",
+  "short_name": "ProductivityX",
+  "description": "All-in-One Productivity Platform — notes, tasks, calendar, pomodoro timer, and AI assistance",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#0f1117",
+  "theme_color": "#6366f1",
+  "orientation": "any",
+  "categories": ["productivity", "utilities"],
+  "icons": [
+    {
+      "src": "/favicon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ],
+  "screenshots": [],
+  "lang": "en",
+  "dir": "ltr"
+}
