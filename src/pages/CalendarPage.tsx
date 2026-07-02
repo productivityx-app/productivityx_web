@@ -2,7 +2,7 @@ import { useState, useMemo, useEffect } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { ChevronLeft, ChevronRight, Plus, Trash2 } from 'lucide-react';
-import { format, addMonths, subMonths, addWeeks, subWeeks, addDays, subDays, startOfWeek, endOfWeek, startOfMonth, endOfMonth } from 'date-fns';
+import { format, addMonths, subMonths, addWeeks, subWeeks, addDays, subDays, startOfWeek, endOfWeek, startOfMonth, endOfMonth, startOfDay, endOfDay } from 'date-fns';
 import { toast } from 'sonner';
 import { motion } from 'framer-motion';
 import { eventsApi } from '@/api/events';
@@ -49,7 +49,7 @@ export default function CalendarPage() {
         return { from: startOfWeek(ms), to: endOfWeek(me) };
       }
       case 'week': return { from: startOfWeek(currentDate), to: endOfWeek(currentDate) };
-      case 'day': return { from: currentDate, to: currentDate };
+      case 'day': return { from: startOfDay(currentDate), to: endOfDay(currentDate) };
       case 'agenda': return { from: currentDate, to: addDays(currentDate, 7) };
     }
   }, [viewMode, currentDate]);
@@ -76,7 +76,7 @@ export default function CalendarPage() {
 
   const handleViewChange = (mode: ViewMode) => {
     setViewMode(mode);
-    setSearchParams({ view: mode });
+    setSearchParams((prev) => { prev.set('view', mode); return prev; });
   };
 
   const handleToday = () => {

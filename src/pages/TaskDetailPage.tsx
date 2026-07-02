@@ -1,7 +1,7 @@
 import { useState, useEffect, useMemo } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { ArrowLeft, Save, Trash2, Sparkles, History } from 'lucide-react';
+import { ArrowLeft, Save, Trash2, Sparkles, History, CalendarIcon, Clock } from 'lucide-react';
 import { toast } from 'sonner';
 import { format, differenceInDays, isPast } from 'date-fns';
 import { tasksApi } from '@/api/tasks';
@@ -9,9 +9,130 @@ import { useTranslation } from 'react-i18next';
 import { motion } from 'framer-motion';
 import { cn } from '@/lib/utils';
 import { Skeleton } from '@/components/ui/skeleton';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { DayPicker } from 'react-day-picker';
 import SubtaskList from '@/components/tasks/SubtaskList';
 import TaskProperties from '@/components/tasks/TaskProperties';
 import PriorityBadge from '@/components/common/PriorityBadge';
+
+function M3TimePicker({ value, onChange }: { value: string; onChange: (v: string) => void }) {
+  const [open, setOpen] = useState(false);
+  const [mode, setMode] = useState<'hour' | 'minute'>('hour');
+
+  const hour24 = value ? parseInt(value.split(':')[0]) : 12;
+  const minute = value ? parseInt(value.split(':')[1]) : 0;
+  const period = hour24 >= 12 ? 'PM' : 'AM';
+  const hour12 = hour24 % 12 || 12;
+
+  const [selHour, setSelHour] = useState(hour12);
+  const [selMinute, setSelMinute] = useState(minute);
+  const [selPeriod, setSelPeriod] = useState(period);
+
+  const S = 260, C = S / 2, R = 96;
+  const items = mode === 'hour'
+    ? [12, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11]
+    : [0, 5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 55];
+
+  const selectedValue = mode === 'hour' ? selHour : selMinute;
+  const selIndex = items.indexOf(selectedValue);
+
+  const coords = (index: number) => {
+    const a = (index / items.length) * 2 * Math.PI - Math.PI / 2;
+    return { x: C + R * Math.cos(a), y: C + R * Math.sin(a) };
+  };
+
+  const p = selIndex >= 0 ? coords(selIndex) : null;
+
+  const pick = (val: number) => {
+    if (mode === 'hour') {
+      setSelHour(val);
+      setMode('minute');
+    } else {
+      setSelMinute(val);
+      const h = selHour === 12 ? 0 : selHour;
+      const h24 = selPeriod === 'AM' ? h : h + 12;
+      onChange(`${String(h24).padStart(2, '0')}:${String(val).padStart(2, '0')}`);
+      setOpen(false);
+    }
+  };
+
+  return (
+    <Popover open={open} onOpenChange={setOpen}>
+      <PopoverTrigger asChild>
+        <button className="w-28 flex items-center justify-center gap-1.5 bg-background border border-border rounded-lg px-3 py-2 text-sm text-foreground hover:bg-accent transition-colors">
+          <Clock size={14} className="text-muted-foreground shrink-0" />
+          {value || <span className="text-muted-foreground/60">—</span>}
+        </button>
+      </PopoverTrigger>
+      <PopoverContent className="w-auto p-0" align="start">
+        <div className="p-4 sm:p-6">
+          <div className="flex items-center justify-center gap-1 mb-5">
+            <button
+              onClick={() => setMode('hour')}
+              className={`text-4xl font-light tabular-nums px-2 py-0.5 rounded-lg transition-colors ${
+                mode === 'hour' ? 'text-foreground' : 'text-muted-foreground/40'
+              }`}
+            >
+              {String(selHour).padStart(2, '0')}
+            </button>
+            <span className={`text-4xl font-light ${mode === 'hour' ? 'text-foreground' : 'text-muted-foreground/40'}`}>:</span>
+            <button
+              onClick={() => setMode('minute')}
+              className={`text-4xl font-light tabular-nums px-2 py-0.5 rounded-lg transition-colors ${
+                mode === 'minute' ? 'text-foreground' : 'text-muted-foreground/40'
+              }`}
+            >
+              {String(selMinute).padStart(2, '0')}
+            </button>
+            <div className="flex flex-col gap-0.5 ml-2">
+              <button
+                onClick={() => setSelPeriod('AM')}
+                className={`text-[10px] font-semibold px-1.5 py-0.5 rounded leading-none transition-colors ${
+                  selPeriod === 'AM' ? 'text-foreground bg-muted' : 'text-muted-foreground/40 hover:text-muted-foreground'
+                }`}
+              >
+                AM
+              </button>
+              <button
+                onClick={() => setSelPeriod('PM')}
+                className={`text-[10px] font-semibold px-1.5 py-0.5 rounded leading-none transition-colors ${
+                  selPeriod === 'PM' ? 'text-foreground bg-muted' : 'text-muted-foreground/40 hover:text-muted-foreground'
+                }`}
+              >
+                PM
+              </button>
+            </div>
+          </div>
+
+          <svg width={S} height={S} viewBox={`0 0 ${S} ${S}`} className="block mx-auto select-none">
+            <circle cx={C} cy={C} r={R} className="fill-muted/20" />
+            {p && (
+              <line x1={C} y1={C} x2={p.x} y2={p.y}
+                className="stroke-primary" strokeWidth={2.5} strokeLinecap="round" />
+            )}
+            <circle cx={C} cy={C} r={4} className="fill-primary" />
+
+            {items.map((val, i) => {
+              const pos = coords(i);
+              const isSel = val === selectedValue;
+              return (
+                <g key={val} onClick={() => pick(val)} className="cursor-pointer">
+                  {isSel && <circle cx={pos.x} cy={pos.y} r={22} className="fill-primary" />}
+                  {!isSel && <circle cx={pos.x} cy={pos.y} r={22} fill="transparent" className="hover:fill-accent/50" />}
+                  <text x={pos.x} y={pos.y} textAnchor="middle" dominantBaseline="central"
+                    className={`text-sm select-none ${isSel ? 'fill-primary-foreground font-medium' : 'fill-foreground'}`}>
+                    {String(val).padStart(2, '0')}
+                  </text>
+                </g>
+              );
+            })}
+          </svg>
+        </div>
+      </PopoverContent>
+    </Popover>
+  );
+}
 
 export default function TaskDetailPage() {
   const { id } = useParams<{ id: string }>();
@@ -29,10 +150,11 @@ export default function TaskDetailPage() {
   const [saving, setSaving] = useState(false);
   const [showProperties, setShowProperties] = useState(true);
 
-  const { data: task, isLoading } = useQuery({
+  const { data: task, isLoading, isError, refetch } = useQuery({
     queryKey: ['task', id],
     queryFn: () => tasksApi.get(id as string),
     enabled: !isNew && !!id,
+    retry: 1,
   });
 
   useEffect(() => {
@@ -46,6 +168,10 @@ export default function TaskDetailPage() {
       setEstimatedMinutes(task.estimatedMinutes);
     }
   }, [task]);
+
+  useEffect(() => {
+    if (!isNew && id) refetch();
+  }, [id]);
 
   const createMutation = useMutation({
     mutationFn: (data: Record<string, unknown>) => tasksApi.create(data),
@@ -122,8 +248,23 @@ export default function TaskDetailPage() {
     );
   }
 
+  if (isError) {
+    return (
+      <div className="flex flex-col items-center justify-center h-full gap-3 p-6">
+        <p className="text-sm text-muted-foreground">{t('taskDetail.notFound')}</p>
+        <button
+          onClick={() => navigate('/tasks')}
+          className="flex items-center gap-1.5 px-3 py-1.5 bg-primary text-primary-foreground rounded-lg text-xs font-medium hover:bg-primary/90 transition-colors"
+        >
+          <ArrowLeft size={12} />
+          {t('common.back')}
+        </button>
+      </div>
+    );
+  }
+
   return (
-    <div className="flex flex-col h-full">
+    <div key={id || 'new'} className="flex flex-col h-full">
       <header className="flex items-center gap-2 px-4 py-2 border-b border-border bg-card/50 flex-shrink-0">
         <button
           onClick={() => navigate('/tasks')}
@@ -170,7 +311,7 @@ export default function TaskDetailPage() {
               value={title}
               onChange={(e) => setTitle(e.target.value)}
               placeholder={t('taskDetail.titlePlaceholder')}
-              className="w-full text-2xl font-bold text-foreground bg-transparent outline-none placeholder:text-muted-foreground/40"
+              className="w-full text-2xl font-bold text-foreground bg-background/50 border border-border rounded-xl px-4 py-3 placeholder:text-muted-foreground/40 focus-visible:ring-2 focus-visible:ring-ring focus-visible:border-primary transition-all outline-none"
             />
 
             <textarea
@@ -178,51 +319,103 @@ export default function TaskDetailPage() {
               onChange={(e) => setDescription(e.target.value)}
               placeholder={t('taskDetail.descriptionPlaceholder')}
               rows={6}
-              className="w-full bg-transparent text-sm text-foreground placeholder:text-muted-foreground/40 outline-none resize-none leading-relaxed"
+              className="w-full bg-background/50 border border-border rounded-xl px-4 py-3 text-sm text-foreground placeholder:text-muted-foreground/40 focus-visible:ring-2 focus-visible:ring-ring focus-visible:border-primary transition-all outline-none resize-none leading-relaxed"
             />
 
-            <div className="bg-card border border-border rounded-xl p-4 space-y-4">
-              <h3 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">{t('taskDetail.properties')}</h3>
-              <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+            <div className="bg-card border border-border rounded-xl p-4 sm:p-5 space-y-4">
+              <div className="grid grid-cols-2 gap-3 sm:gap-4">
                 <div>
                   <label className="text-xs font-medium text-muted-foreground mb-1.5 block">{t('taskDetail.statusLabel')}</label>
-                  <select value={status} onChange={(e) => setStatus(e.target.value)} className="w-full bg-background border border-border rounded-lg px-2.5 py-1.5 text-sm text-foreground outline-none focus-visible:ring-2 focus-visible:ring-ring">
-                    <option value="TODO">To Do</option>
-                    <option value="IN_PROGRESS">In Progress</option>
-                    <option value="ON_HOLD">On Hold</option>
-                    <option value="DONE">Done</option>
-                    <option value="CANCELLED">Cancelled</option>
-                  </select>
+                  <Select value={status} onValueChange={setStatus}>
+                    <SelectTrigger className="w-full bg-background">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="TODO">To Do</SelectItem>
+                      <SelectItem value="IN_PROGRESS">In Progress</SelectItem>
+                      <SelectItem value="ON_HOLD">On Hold</SelectItem>
+                      <SelectItem value="DONE">Done</SelectItem>
+                      <SelectItem value="CANCELLED">Cancelled</SelectItem>
+                    </SelectContent>
+                  </Select>
                 </div>
                 <div>
                   <label className="text-xs font-medium text-muted-foreground mb-1.5 block">{t('taskDetail.priorityLabel')}</label>
-                  <select value={priority} onChange={(e) => setPriority(e.target.value)} className="w-full bg-background border border-border rounded-lg px-2.5 py-1.5 text-sm text-foreground outline-none focus-visible:ring-2 focus-visible:ring-ring">
-                    <option value="LOW">Low</option>
-                    <option value="MEDIUM">Medium</option>
-                    <option value="HIGH">High</option>
-                    <option value="URGENT">Urgent</option>
-                  </select>
+                  <Select value={priority} onValueChange={setPriority}>
+                    <SelectTrigger className="w-full bg-background">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="LOW">Low</SelectItem>
+                      <SelectItem value="MEDIUM">Medium</SelectItem>
+                      <SelectItem value="HIGH">High</SelectItem>
+                      <SelectItem value="URGENT">Urgent</SelectItem>
+                    </SelectContent>
+                  </Select>
                 </div>
-                <div>
+              </div>
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4">
+                <div className="sm:col-span-2">
                   <label className="text-xs font-medium text-muted-foreground mb-1.5 block">{t('taskDetail.dueDateLabel')}</label>
-                  <input type="date" value={dueDate} onChange={(e) => setDueDate(e.target.value)} className="w-full bg-background border border-border rounded-lg px-2.5 py-1.5 text-sm text-foreground outline-none focus-visible:ring-2 focus-visible:ring-ring" />
+                  <div className="flex gap-2">
+                    <Popover>
+                      <PopoverTrigger asChild>
+                        <button className="flex-1 min-w-0 flex items-center gap-2 bg-background border border-border rounded-lg px-3 py-2 text-sm text-foreground hover:bg-accent transition-colors">
+                          <CalendarIcon size={14} className="text-muted-foreground shrink-0" />
+                          {dueDate ? format(new Date(dueDate), 'MMM d, yyyy') : <span className="text-muted-foreground/60">Pick a date</span>}
+                        </button>
+                      </PopoverTrigger>
+                      <PopoverContent className="w-[296px] p-0 overflow-hidden" align="start">
+                        <div className="bg-primary px-4 pt-5 pb-4">
+                          <div className="text-primary-foreground/80 text-xs font-medium uppercase tracking-widest">
+                            {dueDate ? format(new Date(dueDate), 'iii') : 'SELECT'}
+                          </div>
+                          <div className="text-primary-foreground text-2xl font-normal leading-tight mt-0.5">
+                            {dueDate ? format(new Date(dueDate), 'MMM d, yyyy') : 'Pick a date'}
+                          </div>
+                        </div>
+                        <div className="p-4">
+                          <DayPicker
+                            mode="single"
+                            selected={dueDate ? new Date(dueDate) : undefined}
+                            onSelect={(date) => setDueDate(date ? format(date, 'yyyy-MM-dd') : '')}
+                            formatters={{
+                              formatWeekdayName: (date: Date) =>
+                                ['S','M','T','W','T','F','S'][date.getDay()],
+                            }}
+                            classNames={{
+                              root: "bg-background",
+                              months: "relative",
+                              month_caption: "flex items-center justify-center h-8 text-sm font-medium text-foreground",
+                              caption_label: "text-sm font-medium",
+                              nav: "absolute inset-x-0 top-0 flex items-center justify-between px-0.5",
+                              button_previous: "size-7 flex items-center justify-center rounded-full hover:bg-accent text-muted-foreground transition-colors",
+                              button_next: "size-7 flex items-center justify-center rounded-full hover:bg-accent text-muted-foreground transition-colors",
+                              chevron: "size-3.5",
+                              table: "w-full border-collapse mt-2",
+                              weekdays: "flex",
+                              weekday: "size-9 flex items-center justify-center text-xs text-muted-foreground font-normal",
+                              week: "flex",
+                              day: "flex items-center justify-center p-0",
+                              day_button: "size-9 rounded-full text-sm hover:bg-accent transition-colors",
+                              selected: "bg-primary text-primary-foreground hover:bg-primary",
+                              today: "border border-primary",
+                              outside: "text-muted-foreground/30",
+                              disabled: "text-muted-foreground/20",
+                            }}
+                          />
+                        </div>
+                      </PopoverContent>
+                    </Popover>
+                    <M3TimePicker value={dueTime} onChange={setDueTime} />
+                  </div>
                 </div>
                 <div>
                   <label className="text-xs font-medium text-muted-foreground mb-1.5 block">{t('taskDetail.estimatedMinutesLabel')}</label>
-                  <input type="number" min={0} value={estimatedMinutes ?? ''} onChange={(e) => setEstimatedMinutes(e.target.value ? parseInt(e.target.value) : null)} placeholder={t('taskDetail.minutes')} className="w-full bg-background border border-border rounded-lg px-2.5 py-1.5 text-sm text-foreground outline-none placeholder:text-muted-foreground/40 focus-visible:ring-2 focus-visible:ring-ring" />
+                  <input type="number" min={0} value={estimatedMinutes ?? ''} onChange={(e) => setEstimatedMinutes(e.target.value ? parseInt(e.target.value) : null)} placeholder={t('taskDetail.minutes')} className="w-full bg-background border border-border rounded-lg px-3 py-2 text-sm text-foreground outline-none placeholder:text-muted-foreground/40 focus-visible:ring-2 focus-visible:ring-ring" />
                 </div>
               </div>
-              {dueTime && (
-                <div className="flex items-center gap-2">
-                  <label className="text-xs font-medium text-muted-foreground">{t('taskDetail.dueTimeLabel')}</label>
-                  <input type="time" value={dueTime} onChange={(e) => setDueTime(e.target.value)} className="bg-background border border-border rounded-lg px-2.5 py-1.5 text-sm text-foreground outline-none focus-visible:ring-2 focus-visible:ring-ring" />
-                  <button onClick={() => setDueTime('')} className="text-xs text-muted-foreground hover:text-foreground transition-colors">{t('common.clear')}</button>
-                </div>
-              )}
-              {!dueTime && (
-                <button onClick={() => setDueTime('12:00')} className="text-xs text-muted-foreground hover:text-foreground transition-colors">{t('taskDetail.addTime')}</button>
-              )}
-              <div className="flex items-center gap-2">
+              <div className="flex items-center gap-2 pt-1">
                 <PriorityBadge priority={priority} />
                 {dueDate && (
                   <span className="text-xs text-muted-foreground">
@@ -281,7 +474,7 @@ export default function TaskDetailPage() {
           </div>
         </div>
 
-        {(task || isNew) && showProperties && (
+        {task && showProperties && (
           <motion.div
             initial={{ width: 0, opacity: 0 }}
             animate={{ width: 280, opacity: 1 }}

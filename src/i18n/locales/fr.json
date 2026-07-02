@@ -27,6 +27,8 @@
     "recently": "récemment",
     "live": "En direct",
     "undo": "Annuler",
+    "clear": "Effacer",
+    "done": "Terminé",
     "mon": "Lun",
     "tue": "Mar",
     "wed": "Mer",
@@ -88,7 +90,8 @@
       "noAccount": "Vous n'avez pas de compte ?",
       "createAccount": "Créer un compte",
       "loginFailed": "Échec de la connexion",
-      "emailNotVerified": "Email non vérifié"
+      "emailNotVerified": "Email non vérifié",
+      "continueWith": "Ou continuer avec"
     },
     "register": {
       "title": "Créer un compte",
@@ -127,7 +130,8 @@
       "terms": "En créant un compte, vous acceptez nos",
       "termsLink": "Conditions d'utilisation",
       "and": "et",
-      "privacyLink": "Politique de confidentialité"
+      "privacyLink": "Politique de confidentialité",
+      "continueWith": "Ou continuer avec"
     },
     "forgotPassword": {
       "title": "Réinitialiser le mot de passe",
@@ -260,7 +264,18 @@
     "noNotesDesc": "Créez votre première note pour commencer",
     "createNoteButton": "Créer une note",
     "untitled": "Sans titre",
-    "movedToTrash": "Note déplacée vers la corbeille"
+    "movedToTrash": "Note déplacée vers la corbeille",
+    "all": "Tout",
+    "pinned": "Épinglées",
+    "recent": "Récentes",
+    "untagged": "Sans tag",
+    "select": "Sélectionner",
+    "results": "{{count}} résultats",
+    "noTagsGroup": "Aucun tag trouvé",
+    "templateBlank": "Note vide",
+    "templateMeeting": "Notes de réunion",
+    "templateJournal": "Entrée de journal",
+    "templateProject": "Notes de projet"
   },
   "noteDetail": {
     "saving": "Enregistrement...",
@@ -287,7 +302,9 @@
     "properties": "Propriétés",
     "pin": "Épingler la note",
     "unpin": "Détacher la note",
-    "delete": "Supprimer la note"
+    "delete": "Supprimer la note",
+    "created": "Créée",
+    "updated": "Mise à jour"
   },
   "tasks": {
     "title": "Tâches",
@@ -377,7 +394,10 @@
     "aiSuggestions": "Suggestions IA",
     "aiOverdue": "Cette tâche est en retard. Envisagez de mettre à jour la date d'échéance ou de la terminer.",
     "aiInProgressLong": "Cette tâche est en cours depuis {{days}} jours.",
-    "aiNoSubtasksDone": "Aucune sous-tâche terminée pour le moment."
+    "aiNoSubtasksDone": "Aucune sous-tâche terminée pour le moment.",
+    "addTime": "Ajouter une heure",
+    "dueTimeLabel": "Heure",
+    "properties": "Propriétés"
   },
   "priorities": {
     "low": "Basse",
@@ -529,7 +549,8 @@
     "achievementSessions100": "100 sessions",
     "achievementHours5": "5 heures de concentration",
     "achievementHours10": "10 heures de concentration",
-    "achievementNinja": "Ninja de la concentration"
+    "achievementNinja": "Ninja de la concentration",
+    "completed": "Terminée"
   },
   "pomodoroHistory": {
     "title": "Historique et statistiques",

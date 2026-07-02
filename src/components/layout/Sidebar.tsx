@@ -2,7 +2,7 @@ import { Link, useLocation, useNavigate } from 'react-router-dom';
 import {
   LayoutDashboard, FileText, CheckSquare, CalendarDays,
   Timer, Sparkles, Search, Settings, Zap, Moon, Sun, Monitor,
-  PanelLeftClose,
+  PanelLeftClose, PanelLeftOpen,
 } from 'lucide-react';
 import { useAuthStore } from '@/stores/authStore';
 import { useUIStore } from '@/stores/uiStore';
@@ -176,13 +176,13 @@ export default function Sidebar() {
           )}
           <button
             onClick={toggleSidebarCollapsed}
-            aria-label="Collapse sidebar"
+            aria-label={sidebarCollapsed ? 'Expand sidebar' : 'Collapse sidebar'}
             className={cn(
               'p-1 rounded text-muted-foreground hover:text-foreground hover:bg-accent transition-colors flex-shrink-0 focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none',
-              sidebarCollapsed && 'hidden',
+              sidebarCollapsed && 'mx-auto',
             )}
           >
-            <PanelLeftClose size={16} />
+            {sidebarCollapsed ? <PanelLeftOpen size={16} /> : <PanelLeftClose size={16} />}
           </button>
         </div>
 

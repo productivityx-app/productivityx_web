@@ -1,7 +1,7 @@
 import { useState, useMemo, useCallback, useRef, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { Trash2, LayoutGrid, AlignLeft, CalendarDays } from 'lucide-react';
+import { Trash2, LayoutGrid, AlignLeft, CalendarDays, Plus } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { toast } from 'sonner';
 import { stagger } from '@/lib/animations';
@@ -235,6 +235,13 @@ export default function TasksPage() {
       <div className="flex items-center justify-between mb-4">
         <h1 className="text-lg sm:text-xl font-bold text-foreground">{t('tasks.title')}</h1>
         <div className="flex items-center gap-2">
+          <button
+            onClick={() => navigate('/tasks/new')}
+            className="flex items-center gap-1.5 px-3 py-1.5 bg-primary text-primary-foreground rounded-lg text-xs font-medium hover:bg-primary/90 transition-colors"
+          >
+            <Plus size={14} />
+            <span className="hidden sm:inline">{t('tasks.addTask')}</span>
+          </button>
           <button onClick={() => navigate('/tasks/trash')} className="p-2 rounded-lg text-muted-foreground hover:text-foreground hover:bg-accent transition-colors">
             <Trash2 size={15} />
           </button>

@@ -27,6 +27,8 @@
     "recently": "recently",
     "live": "Live",
     "undo": "Undo",
+    "clear": "Clear",
+    "done": "Done",
     "mon": "Mon",
     "tue": "Tue",
     "wed": "Wed",
@@ -88,7 +90,8 @@
       "noAccount": "Don't have an account?",
       "createAccount": "Create account",
       "loginFailed": "Login failed",
-      "emailNotVerified": "Email not verified"
+      "emailNotVerified": "Email not verified",
+      "continueWith": "Or continue with"
     },
     "register": {
       "title": "Create account",
@@ -127,7 +130,8 @@
       "terms": "By creating an account, you agree to our",
       "termsLink": "Terms of Service",
       "and": "and",
-      "privacyLink": "Privacy Policy"
+      "privacyLink": "Privacy Policy",
+      "continueWith": "Or continue with"
     },
     "forgotPassword": {
       "title": "Reset password",
@@ -260,7 +264,18 @@
     "noNotesDesc": "Create your first note to get started",
     "createNoteButton": "Create note",
     "untitled": "Untitled",
-    "movedToTrash": "Note moved to trash"
+    "movedToTrash": "Note moved to trash",
+    "all": "All",
+    "pinned": "Pinned",
+    "recent": "Recent",
+    "untagged": "Untagged",
+    "select": "Select",
+    "results": "{{count}} results",
+    "noTagsGroup": "No tags found",
+    "templateBlank": "Blank note",
+    "templateMeeting": "Meeting notes",
+    "templateJournal": "Journal entry",
+    "templateProject": "Project notes"
   },
   "noteDetail": {
     "saving": "Saving...",
@@ -287,7 +302,9 @@
     "properties": "Properties",
     "pin": "Pin note",
     "unpin": "Unpin note",
-    "delete": "Delete note"
+    "delete": "Delete note",
+    "created": "Created",
+    "updated": "Updated"
   },
   "tasks": {
     "title": "Tasks",
@@ -377,7 +394,10 @@
     "aiSuggestions": "AI Suggestions",
     "aiOverdue": "This task is overdue. Consider updating the due date or completing it.",
     "aiInProgressLong": "This task has been in progress for {{days}} days.",
-    "aiNoSubtasksDone": "No subtasks completed yet."
+    "aiNoSubtasksDone": "No subtasks completed yet.",
+    "addTime": "Add time",
+    "dueTimeLabel": "Time",
+    "properties": "Properties"
   },
   "priorities": {
     "low": "Low",
@@ -529,7 +549,8 @@
     "achievementSessions100": "100 Sessions",
     "achievementHours5": "5 Hours Focused",
     "achievementHours10": "10 Hours Focused",
-    "achievementNinja": "Focus Ninja"
+    "achievementNinja": "Focus Ninja",
+    "completed": "Completed"
   },
   "pomodoroHistory": {
     "title": "History & Stats",

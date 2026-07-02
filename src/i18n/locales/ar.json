@@ -27,6 +27,8 @@
     "recently": "مؤخراً",
     "live": "مباشر",
     "undo": "تراجع",
+    "clear": "مسح",
+    "done": "تم",
     "mon": "الإثنين",
     "tue": "الثلاثاء",
     "wed": "الأربعاء",
@@ -88,7 +90,8 @@
       "noAccount": "ليس لديك حساب؟",
       "createAccount": "إنشاء حساب",
       "loginFailed": "فشل تسجيل الدخول",
-      "emailNotVerified": "البريد الإلكتروني غير موثق"
+      "emailNotVerified": "البريد الإلكتروني غير موثق",
+      "continueWith": "أو تابع باستخدام"
     },
     "register": {
       "title": "إنشاء حساب",
@@ -127,7 +130,8 @@
       "terms": "بإنشاء حساب، فإنك توافق على",
       "termsLink": "شروط الخدمة",
       "and": "و",
-      "privacyLink": "سياسة الخصوصية"
+      "privacyLink": "سياسة الخصوصية",
+      "continueWith": "أو تابع باستخدام"
     },
     "forgotPassword": {
       "title": "إعادة تعيين كلمة المرور",
@@ -260,7 +264,18 @@
     "noNotesDesc": "أنشئ ملاحظتك الأولى للبدء",
     "createNoteButton": "إنشاء ملاحظة",
     "untitled": "بدون عنوان",
-    "movedToTrash": "تم نقل الملاحظة إلى سلة المهملات"
+    "movedToTrash": "تم نقل الملاحظة إلى سلة المهملات",
+    "all": "الكل",
+    "pinned": "مثبتة",
+    "recent": "حديثة",
+    "untagged": "بدون وسم",
+    "select": "اختيار",
+    "results": "{{count}} نتيجة",
+    "noTagsGroup": "لم يتم العثور على وسوم",
+    "templateBlank": "ملاحظة فارغة",
+    "templateMeeting": "ملاحظات اجتماع",
+    "templateJournal": "مدخلة يومية",
+    "templateProject": "ملاحظات مشروع"
   },
   "noteDetail": {
     "saving": "جارٍ الحفظ...",
@@ -287,7 +302,9 @@
     "properties": "الخصائص",
     "pin": "تثبيت الملاحظة",
     "unpin": "إلغاء تثبيت الملاحظة",
-    "delete": "حذف الملاحظة"
+    "delete": "حذف الملاحظة",
+    "created": "تم الإنشاء",
+    "updated": "آخر تحديث"
   },
   "tasks": {
     "title": "المهام",
@@ -377,7 +394,10 @@
     "aiSuggestions": "اقتراحات الذكاء الاصطناعي",
     "aiOverdue": "هذه المهمة متأخرة. فكر في تحديث تاريخ الاستحقاق أو إكمالها.",
     "aiInProgressLong": "هذه المهمة قيد التنفيذ منذ {{days}} أيام.",
-    "aiNoSubtasksDone": "لم يتم إكمال أي مهام فرعية بعد."
+    "aiNoSubtasksDone": "لم يتم إكمال أي مهام فرعية بعد.",
+    "addTime": "إضافة وقت",
+    "dueTimeLabel": "الوقت",
+    "properties": "الخصائص"
   },
   "priorities": {
     "low": "منخفضة",
@@ -529,7 +549,8 @@
     "achievementSessions100": "100 جلسة",
     "achievementHours5": "5 ساعات تركيز",
     "achievementHours10": "10 ساعات تركيز",
-    "achievementNinja": "نينجا التركيز"
+    "achievementNinja": "نينجا التركيز",
+    "completed": "مكتملة"
   },
   "pomodoroHistory": {
     "title": "السجل والإحصائيات",

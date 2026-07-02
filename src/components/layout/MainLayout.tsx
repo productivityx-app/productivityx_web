@@ -20,8 +20,7 @@ import {
 import { Tooltip, TooltipContent, TooltipTrigger, TooltipProvider } from '@/components/ui/tooltip';
 import { cn } from '@/lib/utils';
 import { useTranslation } from 'react-i18next';
-import { AnimatePresence, motion } from 'framer-motion';
-import { pageTransitionConfig, transitions } from '@/lib/animations';
+
 import { useIsMobile } from '@/hooks/use-mobile';
 
 const bottomNavItems = [
@@ -229,19 +228,7 @@ export default function MainLayout() {
         <Header />
 
         <main id="main-content" className="flex-1 overflow-y-auto">
-          <AnimatePresence mode="wait">
-            <motion.div
-              key={pathname}
-              variants={pageTransitionConfig.default}
-              initial="initial"
-              animate="animate"
-              exit="exit"
-              transition={transitions.fast}
-              className="h-full"
-            >
-              <Outlet />
-            </motion.div>
-          </AnimatePresence>
+          <Outlet />
         </main>
 
         <MobileBottomNav />
