@@ -11,9 +11,7 @@ import { useTranslation } from 'react-i18next';
 import AuthLayout from '../components/auth/AuthLayout';
 import AuthInput from '../components/auth/AuthInput';
 import PasswordStrength from '../components/auth/PasswordStrength';
-import OAuthButtons from '../components/auth/OAuthButtons';
 import AnimatedButton from '@/components/design-system/AnimatedButton';
-import LabeledDivider from '@/components/design-system/LabeledDivider';
 
 const MIN_AGE = 13;
 function isOldEnough(dateStr: string): boolean {
@@ -121,10 +119,7 @@ export default function RegisterPage() {
         </AnimatedButton>
       </form>
 
-      <div className="mt-4 space-y-3">
-        <LabeledDivider label={t('auth.register.continueWith')} />
-        <OAuthButtons />
-      </div>
+
 
       <p className="text-center text-sm text-muted-foreground mt-6">
         {t('auth.register.hasAccount')}{' '}

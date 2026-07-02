@@ -9,9 +9,7 @@ import { authApi } from '../api/auth';
 import { useAuthStore } from '../stores/authStore';
 import AuthLayout from '../components/auth/AuthLayout';
 import AuthInput from '../components/auth/AuthInput';
-import OAuthButtons from '../components/auth/OAuthButtons';
 import AnimatedButton from '@/components/design-system/AnimatedButton';
-import LabeledDivider from '@/components/design-system/LabeledDivider';
 
 const schema = z.object({
   identifier: z.string().min(1, 'Email or username required'),
@@ -97,10 +95,7 @@ export default function LoginPage() {
         </AnimatedButton>
       </form>
 
-      <div className="mt-4 space-y-3">
-        <LabeledDivider label={t('auth.login.continueWith')} />
-        <OAuthButtons />
-      </div>
+
 
       <p className="text-center text-sm text-muted-foreground mt-6">
         {t('auth.login.noAccount')}{' '}
