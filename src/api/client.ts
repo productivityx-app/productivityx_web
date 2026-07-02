@@ -44,8 +44,7 @@ apiClient.interceptors.response.use(
         && !originalRequest.url?.includes('/auth/register')
         && !originalRequest.url?.includes('/auth/forgot-password')
         && !originalRequest.url?.includes('/auth/reset-password')
-        && !originalRequest.url?.includes('/auth/refresh')
-        && !originalRequest.url?.includes('/auth/me')) {
+        && !originalRequest.url?.includes('/auth/refresh')) {
       if (isRefreshing) {
         return new Promise((resolve, reject) => {
           failedQueue.push({ resolve, reject });
