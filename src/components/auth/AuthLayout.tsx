@@ -1,5 +1,5 @@
 import { motion } from 'framer-motion';
-import { Zap, ShieldCheck } from 'lucide-react';
+import { ShieldCheck } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { useIsMobile } from '@/hooks/use-mobile';
 
@@ -52,9 +52,7 @@ export default function AuthLayout({ children, title, subtitle }: Props) {
                 animate={{ opacity: 1, x: 0 }}
                 className="flex items-center gap-3"
               >
-                <div className="w-10 h-10 rounded-xl bg-primary flex items-center justify-center shadow-lg shadow-primary/30">
-                  <Zap size={20} className="text-primary-foreground" />
-                </div>
+                <img src="/logo_circle.svg" alt="ProductivityX" className="w-10 h-10" />
                 <span className="text-lg font-bold text-foreground">ProductivityX</span>
               </motion.div>
             </div>
@@ -87,9 +85,7 @@ export default function AuthLayout({ children, title, subtitle }: Props) {
         {/* Mobile header */}
         {isMobile && (
           <div className="absolute top-6 left-6 flex items-center gap-2">
-            <div className="w-8 h-8 rounded-lg bg-primary flex items-center justify-center">
-              <Zap size={16} className="text-primary-foreground" />
-            </div>
+            <img src="/logo_circle.svg" alt="ProductivityX" className="w-8 h-8" />
             <span className="text-sm font-bold text-foreground">ProductivityX</span>
           </div>
         )}

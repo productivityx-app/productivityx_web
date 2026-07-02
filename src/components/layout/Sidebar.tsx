@@ -1,7 +1,7 @@
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import {
   LayoutDashboard, FileText, CheckSquare, CalendarDays,
-  Timer, Sparkles, Search, Settings, Zap, Moon, Sun, Monitor,
+  Timer, Sparkles, Search, Settings, Moon, Sun, Monitor,
   PanelLeftClose, PanelLeftOpen,
 } from 'lucide-react';
 import { useAuthStore } from '@/stores/authStore';
@@ -165,14 +165,12 @@ export default function Sidebar() {
         )}>
           {!sidebarCollapsed && (
             <div className="flex items-center gap-2 min-w-0">
-              <div className="w-7 h-7 bg-primary rounded-lg flex items-center justify-center flex-shrink-0">
-                <Zap size={14} className="text-primary-foreground" />
-              </div>
+              <img src="/logo_circle.svg" alt="ProductivityX" className="w-7 h-7 flex-shrink-0" />
               <span className="font-bold text-base tracking-tight text-foreground truncate">{t('nav.productivityX')}</span>
             </div>
           )}
           {sidebarCollapsed && (
-            <Zap size={18} className="text-primary flex-shrink-0" />
+            <img src="/logo_circle.svg" alt="ProductivityX" className="w-[18px] h-[18px] flex-shrink-0" />
           )}
           <button
             onClick={toggleSidebarCollapsed}

@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useSearchParams, Link } from 'react-router-dom';
-import { Zap, CheckCircle, XCircle, Loader2 } from 'lucide-react';
+import { CheckCircle, XCircle, Loader2 } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { useTranslation } from 'react-i18next';
 import { authApi } from '../api/auth';
@@ -25,9 +25,7 @@ export default function VerifyEmailPage() {
       <div className="text-center py-4">
         {!token ? (
           <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="space-y-4">
-            <div className="inline-flex items-center justify-center w-12 h-12 bg-primary rounded-2xl">
-              <Zap size={22} className="text-primary-foreground" />
-            </div>
+            <img src="/logo_circle.svg" alt="ProductivityX" className="w-12 h-12 mx-auto" />
             <h1 className="text-xl font-bold text-foreground">{t('auth.verifyEmail.checkEmail')}</h1>
             <p className="text-sm text-muted-foreground">{t('auth.verifyEmail.checkEmailDesc')}</p>
             <Link to="/login" className="inline-block text-sm text-primary hover:underline mt-4">{t('auth.verifyEmail.backToLogin')}</Link>
