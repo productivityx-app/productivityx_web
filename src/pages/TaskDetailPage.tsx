@@ -139,7 +139,7 @@ export default function TaskDetailPage() {
   const navigate = useNavigate();
   const qc = useQueryClient();
   const { t } = useTranslation();
-  const isNew = id === 'new';
+  const isNew = !id || id === 'new';
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
   const [status, setStatus] = useState('TODO');
@@ -208,7 +208,7 @@ export default function TaskDetailPage() {
   };
 
   const handlePropertyUpdate = (data: Record<string, unknown>) => {
-    if (isNew) return;
+    if (isNew || !id) return;
     updateMutation.mutate(data);
   };
 
@@ -307,14 +307,20 @@ export default function TaskDetailPage() {
       <div className="flex flex-1 overflow-hidden">
         <div className="flex-1 overflow-y-auto p-4 sm:p-6">
           <div className="max-w-3xl mx-auto space-y-6">
+            <label htmlFor="task-title" className="sr-only">{t('taskDetail.titlePlaceholder')}</label>
             <input
+              id="task-title"
+              name="title"
               value={title}
               onChange={(e) => setTitle(e.target.value)}
               placeholder={t('taskDetail.titlePlaceholder')}
               className="w-full text-2xl font-bold text-foreground bg-background/50 border border-border rounded-xl px-4 py-3 placeholder:text-muted-foreground/40 focus-visible:ring-2 focus-visible:ring-ring focus-visible:border-primary transition-all outline-none"
             />
 
+            <label htmlFor="task-description" className="sr-only">{t('taskDetail.descriptionPlaceholder')}</label>
             <textarea
+              id="task-description"
+              name="description"
               value={description || ''}
               onChange={(e) => setDescription(e.target.value)}
               placeholder={t('taskDetail.descriptionPlaceholder')}
@@ -325,9 +331,9 @@ export default function TaskDetailPage() {
             <div className="bg-card border border-border rounded-xl p-4 sm:p-5 space-y-4">
               <div className="grid grid-cols-2 gap-3 sm:gap-4">
                 <div>
-                  <label className="text-xs font-medium text-muted-foreground mb-1.5 block">{t('taskDetail.statusLabel')}</label>
+                  <label htmlFor="task-status" className="text-xs font-medium text-muted-foreground mb-1.5 block">{t('taskDetail.statusLabel')}</label>
                   <Select value={status} onValueChange={setStatus}>
-                    <SelectTrigger className="w-full bg-background">
+                    <SelectTrigger id="task-status" className="w-full bg-background">
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
@@ -340,9 +346,9 @@ export default function TaskDetailPage() {
                   </Select>
                 </div>
                 <div>
-                  <label className="text-xs font-medium text-muted-foreground mb-1.5 block">{t('taskDetail.priorityLabel')}</label>
+                  <label htmlFor="task-priority" className="text-xs font-medium text-muted-foreground mb-1.5 block">{t('taskDetail.priorityLabel')}</label>
                   <Select value={priority} onValueChange={setPriority}>
-                    <SelectTrigger className="w-full bg-background">
+                    <SelectTrigger id="task-priority" className="w-full bg-background">
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
@@ -356,11 +362,11 @@ export default function TaskDetailPage() {
               </div>
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4">
                 <div className="sm:col-span-2">
-                  <label className="text-xs font-medium text-muted-foreground mb-1.5 block">{t('taskDetail.dueDateLabel')}</label>
+                  <label htmlFor="task-dueDate" className="text-xs font-medium text-muted-foreground mb-1.5 block">{t('taskDetail.dueDateLabel')}</label>
                   <div className="flex gap-2">
                     <Popover>
                       <PopoverTrigger asChild>
-                        <button className="flex-1 min-w-0 flex items-center gap-2 bg-background border border-border rounded-lg px-3 py-2 text-sm text-foreground hover:bg-accent transition-colors">
+                        <button id="task-dueDate" className="flex-1 min-w-0 flex items-center gap-2 bg-background border border-border rounded-lg px-3 py-2 text-sm text-foreground hover:bg-accent transition-colors">
                           <CalendarIcon size={14} className="text-muted-foreground shrink-0" />
                           {dueDate ? format(new Date(dueDate), 'MMM d, yyyy') : <span className="text-muted-foreground/60">Pick a date</span>}
                         </button>
@@ -411,8 +417,8 @@ export default function TaskDetailPage() {
                   </div>
                 </div>
                 <div>
-                  <label className="text-xs font-medium text-muted-foreground mb-1.5 block">{t('taskDetail.estimatedMinutesLabel')}</label>
-                  <input type="number" min={0} value={estimatedMinutes ?? ''} onChange={(e) => setEstimatedMinutes(e.target.value ? parseInt(e.target.value) : null)} placeholder={t('taskDetail.minutes')} className="w-full bg-background border border-border rounded-lg px-3 py-2 text-sm text-foreground outline-none placeholder:text-muted-foreground/40 focus-visible:ring-2 focus-visible:ring-ring" />
+                  <label htmlFor="task-estimatedMinutes" className="text-xs font-medium text-muted-foreground mb-1.5 block">{t('taskDetail.estimatedMinutesLabel')}</label>
+                  <input id="task-estimatedMinutes" name="estimatedMinutes" type="number" min={0} value={estimatedMinutes ?? ''} onChange={(e) => setEstimatedMinutes(e.target.value ? parseInt(e.target.value) : null)} placeholder={t('taskDetail.minutes')} className="w-full bg-background border border-border rounded-lg px-3 py-2 text-sm text-foreground outline-none placeholder:text-muted-foreground/40 focus-visible:ring-2 focus-visible:ring-ring" />
                 </div>
               </div>
               <div className="flex items-center gap-2 pt-1">

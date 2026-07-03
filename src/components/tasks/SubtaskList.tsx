@@ -119,6 +119,8 @@ export default function SubtaskList({ taskId, subtasks, onRefresh }: Props) {
 
       <div className="flex items-center gap-2 pt-1">
         <input
+          id="subtask-new-title"
+          name="title"
           value={newTitle}
           onChange={(e) => setNewTitle(e.target.value)}
           onKeyDown={(e) => { if (e.key === 'Enter' && newTitle.trim()) addMutation.mutate(newTitle.trim()); }}

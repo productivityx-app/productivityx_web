@@ -52,6 +52,8 @@ export default function TaskFilters({
       <div className="relative">
         <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
         <input
+          id="task-search"
+          name="search"
           value={search}
           onChange={(e) => onSearchChange(e.target.value)}
           placeholder={t('common.search')}
@@ -83,6 +85,8 @@ export default function TaskFilters({
         <div className="w-px h-5 bg-border mx-1" />
 
         <select
+          id="task-sort"
+          name="sort"
           value={sort}
           onChange={(e) => onSortChange(e.target.value as SortKey)}
           className="px-2.5 py-1 rounded-lg text-xs bg-card border border-border text-muted-foreground outline-none focus:ring-2 focus:ring-ring"
@@ -102,6 +106,8 @@ export default function TaskFilters({
         <div className="w-px h-5 bg-border mx-1" />
 
         <select
+          id="task-group"
+          name="group"
           value={group}
           onChange={(e) => onGroupChange(e.target.value as GroupKey)}
           className="px-2.5 py-1 rounded-lg text-xs bg-card border border-border text-muted-foreground outline-none focus:ring-2 focus:ring-ring"

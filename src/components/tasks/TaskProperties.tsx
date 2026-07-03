@@ -27,17 +27,19 @@ const PRIORITIES: { value: TaskPriority; label: string; icon: string }[] = [
 export default function TaskProperties({ task, onUpdate }: Props) {
   const { t } = useTranslation();
 
-  const Section = ({ label, children }: { label: string; children: React.ReactNode }) => (
+  const Section = ({ label, htmlFor, children }: { label: string; htmlFor?: string; children: React.ReactNode }) => (
     <div className="space-y-1.5">
-      <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider">{label}</p>
+      <label htmlFor={htmlFor} className="text-xs font-medium text-muted-foreground uppercase tracking-wider">{label}</label>
       {children}
     </div>
   );
 
   return (
     <div className="space-y-5">
-      <Section label={t('taskDetail.statusLabel')}>
+      <Section label={t('taskDetail.statusLabel')} htmlFor="task-props-status">
         <select
+          id="task-props-status"
+          name="status"
           value={task.status}
           onChange={(e) => onUpdate({ status: e.target.value })}
           className="w-full px-3 py-1.5 bg-card border border-border rounded-lg text-sm text-foreground outline-none focus:ring-2 focus:ring-ring"
@@ -69,10 +71,12 @@ export default function TaskProperties({ task, onUpdate }: Props) {
         </div>
       </Section>
 
-      <Section label={t('taskDetail.dueDateLabel')}>
+      <Section label={t('taskDetail.dueDateLabel')} htmlFor="task-props-dueDate">
         <div className="flex items-center gap-2">
           <Calendar size={14} className="text-muted-foreground" />
           <input
+            id="task-props-dueDate"
+            name="dueDate"
             type="date"
             value={task.dueDate ? task.dueDate.split('T')[0] : ''}
             onChange={(e) => onUpdate({ dueDate: e.target.value || null })}
@@ -83,6 +87,8 @@ export default function TaskProperties({ task, onUpdate }: Props) {
           <div className="flex items-center gap-2 mt-1.5">
             <Clock size={14} className="text-muted-foreground" />
             <input
+              id="task-props-dueTime"
+              name="dueTime"
               type="time"
               value={task.dueTime}
               onChange={(e) => onUpdate({ dueTime: e.target.value || null })}
@@ -92,10 +98,12 @@ export default function TaskProperties({ task, onUpdate }: Props) {
         )}
       </Section>
 
-      <Section label={t('taskDetail.estimatedMinutesLabel')}>
+      <Section label={t('taskDetail.estimatedMinutesLabel')} htmlFor="task-props-estimatedMinutes">
         <div className="flex items-center gap-2">
           <Timer size={14} className="text-muted-foreground" />
           <input
+            id="task-props-estimatedMinutes"
+            name="estimatedMinutes"
             type="number"
             min={0}
             step={5}

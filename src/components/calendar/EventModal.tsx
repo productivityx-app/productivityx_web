@@ -79,12 +79,14 @@ export default function EventModal({ open, onClose, event, defaultDate, defaultS
     }
   }, [event, defaultDate, open, defaultStartTime, defaultEndTime]);
 
+  const toInstant = (d: string, t: string) => new Date(`${d}T${t}:00`).toISOString();
+
   const createMutation = useMutation({
     mutationFn: () => eventsApi.create({
       title, description: description || null, location: location || null,
       color, allDay, recurrenceRule: recurrence || null, reminderMinutes: reminder || null,
-      startAt: allDay ? `${date}T00:00:00` : `${date}T${startTime}:00`,
-      endAt: allDay ? `${date}T23:59:59` : `${date}T${endTime}:00`,
+      startAt: allDay ? toInstant(date, '00:00') : toInstant(date, startTime),
+      endAt:   allDay ? toInstant(date, '23:59') : toInstant(date, endTime),
     } as Partial<CalendarEvent>),
     onSuccess: () => { qc.invalidateQueries({ queryKey: ['events'] }); toast.success(t('calendar.createSuccess')); onClose(); },
     onError: () => toast.error(t('calendar.failedToCreate')),
@@ -94,8 +96,8 @@ export default function EventModal({ open, onClose, event, defaultDate, defaultS
     mutationFn: () => eventsApi.update(event!.id, {
       title, description: description || null, location: location || null,
       color, allDay, recurrenceRule: recurrence || null, reminderMinutes: reminder || null,
-      startAt: allDay ? `${date}T00:00:00` : `${date}T${startTime}:00`,
-      endAt: allDay ? `${date}T23:59:59` : `${date}T${endTime}:00`,
+      startAt: allDay ? toInstant(date, '00:00') : toInstant(date, startTime),
+      endAt:   allDay ? toInstant(date, '23:59') : toInstant(date, endTime),
     } as Partial<CalendarEvent>),
     onSuccess: () => { qc.invalidateQueries({ queryKey: ['events'] }); qc.invalidateQueries({ queryKey: ['event', event!.id] }); toast.success(t('calendar.updateSuccess')); onClose(); },
     onError: () => toast.error(t('calendar.failedToUpdate')),

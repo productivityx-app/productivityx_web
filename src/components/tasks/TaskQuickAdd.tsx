@@ -51,6 +51,8 @@ export default function TaskQuickAdd({ defaultStatus = 'TODO', className }: Prop
       ) : (
         <div className="flex items-center gap-2 p-2 bg-card border border-border rounded-xl">
           <input
+            id="task-quick-add-title"
+            name="title"
             ref={inputRef}
             value={title}
             onChange={(e) => setTitle(e.target.value)}

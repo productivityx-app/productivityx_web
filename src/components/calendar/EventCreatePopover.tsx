@@ -27,8 +27,8 @@ export default function EventCreatePopover({ date, startTime = '09:00', endTime 
       title: title.trim(),
       color: '#6366F1',
       allDay: false,
-      startAt: `${format(date, 'yyyy-MM-dd')}T${startTime}:00`,
-      endAt: `${format(date, 'yyyy-MM-dd')}T${endTime}:00`,
+      startAt: new Date(`${format(date, 'yyyy-MM-dd')}T${startTime}:00`).toISOString(),
+      endAt: new Date(`${format(date, 'yyyy-MM-dd')}T${endTime}:00`).toISOString(),
     }),
     onSuccess: () => { qc.invalidateQueries({ queryKey: ['events'] }); toast.success(t('calendar.createSuccess')); setTitle(''); setOpen(false); onCreated?.(); },
   });
