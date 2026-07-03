@@ -16,7 +16,7 @@ export default function ProtectedRoute() {
   useEffect(() => {
     async function checkAuth() {
       if (!accessToken) { setLoading(false); setChecked(true); return; }
-      if (isAuthenticated) { setChecked(true); return; }
+      if (isAuthenticated) { setLoading(false); setChecked(true); return; }
       setLoading(true);
       try {
         const userData = await authApi.me();
