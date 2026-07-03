@@ -1,9 +1,10 @@
-import { useEffect, useCallback, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Play, Pause, SkipForward, Square, X } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { useTranslation } from 'react-i18next';
 import TimerRing from './TimerRing';
 import SoundSelector, { SoundType } from './SoundSelector';
+import { useBackgroundSound } from '@/hooks/useBackgroundSound';
 
 interface Props {
   timeRemaining: number;
@@ -37,6 +38,8 @@ export default function FocusMode({
   const [quoteIndex, setQuoteIndex] = useState(0);
   const [sound, setSound] = useState<SoundType>('none');
   const [volume, setVolume] = useState(50);
+
+  useBackgroundSound(sound, volume);
 
   useEffect(() => {
     const interval = setInterval(() => {
@@ -128,6 +131,10 @@ export default function FocusMode({
       <p className="text-xs text-muted-foreground/50 mt-3">
         {t('pomodoro.focusShortcuts')}
       </p>
+
+      <div className="mt-8 w-72">
+        <SoundSelector selected={sound} onSelect={setSound} volume={volume} onVolumeChange={setVolume} />
+      </div>
 
       <motion.p
         key={quoteIndex}

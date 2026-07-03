@@ -15,6 +15,7 @@ import SessionSetup from '../components/pomodoro/SessionSetup';
 import TimerRing from '../components/pomodoro/TimerRing';
 import FocusMode from '../components/pomodoro/FocusMode';
 import BreakScreen from '../components/pomodoro/BreakScreen';
+import { playNotification } from '@/lib/playNotification';
 import { SoundType } from '../components/pomodoro/SoundSelector';
 
 const TYPE_COLORS: Record<string, string> = {
@@ -91,6 +92,7 @@ export default function PomodoroPage() {
     lastRunningRef.current = isRunning;
 
     if (wasRunning && !isRunning && timeRemaining === 0 && phase !== 'idle') {
+      if (preferences?.pomodoroSoundEnabled !== false) playNotification();
       const completedType = completedTypeRef.current;
       if (completedType === 'FOCUS') {
         const newCycles = cyclesCompleted + 1;
