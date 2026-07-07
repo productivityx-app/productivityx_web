@@ -804,7 +804,8 @@
     "languageOptions": {
       "en": "English",
       "fr": "Français",
-      "ar": "العربية"
+      "ar": "العربية",
+      "es": "Español"
     }
   },
   "trash": {
