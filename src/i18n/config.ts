@@ -6,14 +6,15 @@ import fr from './locales/fr.json';
 import ar from './locales/ar.json';
 import es from './locales/es.json';
 import de from './locales/de.json';
+import ko from './locales/ko.json';
 
 i18n
   .use(LanguageDetector)
   .use(initReactI18next)
   .init({
-    resources: { en: { translation: en }, fr: { translation: fr }, ar: { translation: ar }, es: { translation: es }, de: { translation: de } },
+    resources: { en: { translation: en }, fr: { translation: fr }, ar: { translation: ar }, es: { translation: es }, de: { translation: de }, ko: { translation: ko } },
     fallbackLng: 'en',
-    supportedLngs: ['en', 'fr', 'ar', 'es', 'de'],
+    supportedLngs: ['en', 'fr', 'ar', 'es', 'de', 'ko'],
     interpolation: { escapeValue: false },
     detection: { order: ['localStorage', 'navigator'], caches: ['localStorage'], lookupLocalStorage: 'i18nextLng' },
   });
