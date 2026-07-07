@@ -1,7 +1,7 @@
-import { enUS, fr, ar, es, type Locale } from 'date-fns/locale';
+import { enUS, fr, ar, es, de, type Locale } from 'date-fns/locale';
 import i18n from './config';
 
-const localeMap: Record<string, Locale> = { en: enUS, fr, ar, es };
+const localeMap: Record<string, Locale> = { en: enUS, fr, ar, es, de };
 
 export function getDateFnsLocale(): Locale {
   return localeMap[i18n.language] || enUS;
