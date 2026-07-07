@@ -810,7 +810,10 @@
       "ko": "한국어",
       "ja": "日本語",
       "pt": "Português",
-      "tr": "Türkçe"
+      "tr": "Türkçe",
+      "zh-TW": "繁體中文",
+      "hi": "हिन्दी",
+      "id": "Bahasa Indonesia"
     }
   },
   "trash": {
