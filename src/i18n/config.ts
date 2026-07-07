@@ -13,14 +13,17 @@ import tr from './locales/tr.json';
 import zhTW from './locales/zh-TW.json';
 import hi from './locales/hi.json';
 import id from './locales/id.json';
+import vi from './locales/vi.json';
+import it from './locales/it.json';
+import nl from './locales/nl.json';
 
 i18n
   .use(LanguageDetector)
   .use(initReactI18next)
   .init({
-    resources: { en: { translation: en }, fr: { translation: fr }, ar: { translation: ar }, es: { translation: es }, de: { translation: de }, ko: { translation: ko }, ja: { translation: ja }, pt: { translation: pt }, tr: { translation: tr }, 'zh-TW': { translation: zhTW }, hi: { translation: hi }, id: { translation: id } },
+    resources: { en: { translation: en }, fr: { translation: fr }, ar: { translation: ar }, es: { translation: es }, de: { translation: de }, ko: { translation: ko }, ja: { translation: ja }, pt: { translation: pt }, tr: { translation: tr }, 'zh-TW': { translation: zhTW }, hi: { translation: hi }, id: { translation: id }, vi: { translation: vi }, it: { translation: it }, nl: { translation: nl } },
     fallbackLng: 'en',
-    supportedLngs: ['en', 'fr', 'ar', 'es', 'de', 'ko', 'ja', 'pt', 'tr', 'zh-TW', 'hi', 'id'],
+    supportedLngs: ['en', 'fr', 'ar', 'es', 'de', 'ko', 'ja', 'pt', 'tr', 'zh-TW', 'hi', 'id', 'vi', 'it', 'nl'],
     interpolation: { escapeValue: false },
     detection: { order: ['localStorage', 'navigator'], caches: ['localStorage'], lookupLocalStorage: 'i18nextLng' },
   });
