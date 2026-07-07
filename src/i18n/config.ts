@@ -9,14 +9,15 @@ import de from './locales/de.json';
 import ko from './locales/ko.json';
 import ja from './locales/ja.json';
 import pt from './locales/pt.json';
+import tr from './locales/tr.json';
 
 i18n
   .use(LanguageDetector)
   .use(initReactI18next)
   .init({
-    resources: { en: { translation: en }, fr: { translation: fr }, ar: { translation: ar }, es: { translation: es }, de: { translation: de }, ko: { translation: ko }, ja: { translation: ja }, pt: { translation: pt } },
+    resources: { en: { translation: en }, fr: { translation: fr }, ar: { translation: ar }, es: { translation: es }, de: { translation: de }, ko: { translation: ko }, ja: { translation: ja }, pt: { translation: pt }, tr: { translation: tr } },
     fallbackLng: 'en',
-    supportedLngs: ['en', 'fr', 'ar', 'es', 'de', 'ko', 'ja', 'pt'],
+    supportedLngs: ['en', 'fr', 'ar', 'es', 'de', 'ko', 'ja', 'pt', 'tr'],
     interpolation: { escapeValue: false },
     detection: { order: ['localStorage', 'navigator'], caches: ['localStorage'], lookupLocalStorage: 'i18nextLng' },
   });
