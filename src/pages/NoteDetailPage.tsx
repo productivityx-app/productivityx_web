@@ -52,11 +52,14 @@ export default function NoteDetailPage() {
     setSaveStatus('saving');
     try {
       if (!noteIdRef.current) {
+        noteIdRef.current = '__CREATING__';
         const newNote = await notesApi.create({ title: titleStr, content: c });
         noteIdRef.current = newNote.id;
         versionRef.current = newNote.version || 0;
         navigate(`/notes/${newNote.id}`, { replace: true });
         qc.invalidateQueries({ queryKey: ['notes'] });
+      } else if (noteIdRef.current === '__CREATING__') {
+        return;
       } else {
         const updated = await notesApi.update(noteIdRef.current, { title: titleStr, content: c, knownVersion: versionRef.current });
         versionRef.current = updated.version || versionRef.current;
@@ -67,6 +70,7 @@ export default function NoteDetailPage() {
     } catch (err: unknown) {
       const status = (err as { response?: { status?: number } })?.response?.status;
       if (status === 409) toast.error(t('noteDetail.conflictDetected'), { duration: 5000 });
+      noteIdRef.current = null;
       setSaveStatus('idle');
     }
   }, [navigate, qc, t]);

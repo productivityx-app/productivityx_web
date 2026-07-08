@@ -35,7 +35,11 @@
     "thu": "Thu",
     "fri": "Fri",
     "sat": "Sat",
-    "sun": "Sun"
+    "sun": "Sun",
+    "selectDate": "Select date",
+    "selectTime": "Select time",
+    "hour": "Hour",
+    "minute": "Minute"
   },
   "nav": {
     "dashboard": "Dashboard",
@@ -550,7 +554,10 @@
     "achievementHours5": "5 Hours Focused",
     "achievementHours10": "10 Hours Focused",
     "achievementNinja": "Focus Ninja",
-    "completed": "Completed"
+    "completed": "Completed",
+    "sessionInProgress": "Session in Progress",
+    "remaining": "remaining",
+    "resume": "Resume"
   },
   "pomodoroHistory": {
     "title": "History & Stats",
@@ -801,6 +808,10 @@
     "aiContextEnabled": "Enable context awareness",
     "clearAiHistory": "Clear conversation history",
     "aiHistoryCleared": "Conversation history cleared",
+    "avatarUrl": "Avatar URL",
+    "avatarUpdated": "Avatar updated",
+    "passwordsDoNotMatch": "Passwords do not match",
+    "passwordTooShort": "Password must be at least 8 characters",
     "languageOptions": {
       "en": "English",
       "fr": "Français",

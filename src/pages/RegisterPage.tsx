@@ -12,6 +12,7 @@ import AuthLayout from '../components/auth/AuthLayout';
 import AuthInput from '../components/auth/AuthInput';
 import PasswordStrength from '../components/auth/PasswordStrength';
 import AnimatedButton from '@/components/design-system/AnimatedButton';
+import { DatePicker } from '@/components/ui/date-picker';
 
 const MIN_AGE = 13;
 function isOldEnough(dateStr: string): boolean {
@@ -72,7 +73,11 @@ export default function RegisterPage() {
         <AuthInput label={t('auth.register.username')} placeholder={t('auth.register.usernamePlaceholder')} error={errors.username?.message} {...register('username')} />
         <AuthInput label={t('auth.register.email')} type="email" placeholder={t('auth.register.emailPlaceholder')} error={errors.email?.message} {...register('email')} />
         <div className="grid grid-cols-2 gap-3">
-          <AuthInput label={t('auth.register.birthDate')} type="date" error={errors.birthDate?.message} {...register('birthDate')} />
+          <div className="space-y-1.5">
+            <label className="text-xs font-medium text-muted-foreground">{t('auth.register.birthDate')}</label>
+            <DatePicker value={watch('birthDate')} onChange={(d) => setValue('birthDate', d, { shouldValidate: true })} fromYear={1920} toYear={new Date().getFullYear()} />
+            {errors.birthDate?.message && <p className="text-[11px] text-destructive">{errors.birthDate.message}</p>}
+          </div>
           <AuthInput label={t('auth.register.phoneOptional')} type="tel" placeholder={t('auth.register.phonePlaceholder')} {...register('phone')} />
         </div>
         <div className="grid grid-cols-2 gap-3">

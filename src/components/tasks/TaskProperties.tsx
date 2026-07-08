@@ -3,6 +3,7 @@ import { useTranslation } from 'react-i18next';
 import { cn } from '@/lib/utils';
 import { Task, TaskStatus, TaskPriority } from '@/types';
 import { format } from 'date-fns';
+import { DatePicker, TimePicker } from '@/components/ui/date-picker';
 
 interface Props {
   task: Task;
@@ -71,31 +72,11 @@ export default function TaskProperties({ task, onUpdate }: Props) {
         </div>
       </Section>
 
-      <Section label={t('taskDetail.dueDateLabel')} htmlFor="task-props-dueDate">
-        <div className="flex items-center gap-2">
-          <Calendar size={14} className="text-muted-foreground" />
-          <input
-            id="task-props-dueDate"
-            name="dueDate"
-            type="date"
-            value={task.dueDate ? task.dueDate.split('T')[0] : ''}
-            onChange={(e) => onUpdate({ dueDate: e.target.value || null })}
-            className="flex-1 px-3 py-1.5 bg-card border border-border rounded-lg text-sm text-foreground outline-none focus:ring-2 focus:ring-ring"
-          />
+      <Section label={t('taskDetail.dueDateLabel')}>
+        <div className="flex flex-col gap-1.5">
+          <DatePicker value={task.dueDate ? task.dueDate.split('T')[0] : ''} onChange={(d) => onUpdate({ dueDate: d || null })} />
+          <TimePicker value={task.dueTime || ''} onChange={(t) => onUpdate({ dueTime: t || null })} />
         </div>
-        {task.dueTime && (
-          <div className="flex items-center gap-2 mt-1.5">
-            <Clock size={14} className="text-muted-foreground" />
-            <input
-              id="task-props-dueTime"
-              name="dueTime"
-              type="time"
-              value={task.dueTime}
-              onChange={(e) => onUpdate({ dueTime: e.target.value || null })}
-              className="flex-1 px-3 py-1.5 bg-card border border-border rounded-lg text-sm text-foreground outline-none focus:ring-2 focus:ring-ring"
-            />
-          </div>
-        )}
       </Section>
 
       <Section label={t('taskDetail.estimatedMinutesLabel')} htmlFor="task-props-estimatedMinutes">

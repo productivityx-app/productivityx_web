@@ -468,3 +468,32 @@
     scroll-behavior: auto !important;
   }
 }
+
+.reduced-motion *,
+.reduced-motion *::before,
+.reduced-motion *::after {
+  animation-duration: 0.01ms !important;
+  animation-iteration-count: 1 !important;
+  transition-duration: 0.01ms !important;
+  scroll-behavior: auto !important;
+}
+
+[data-density="compact"] {
+  --spacing-scale: 0.85;
+}
+[data-density="comfortable"] {
+  --spacing-scale: 1;
+}
+[data-density="spacious"] {
+  --spacing-scale: 1.15;
+}
+
+[data-font-size="small"] {
+  --font-size-scale: 0.9;
+}
+[data-font-size="default"] {
+  --font-size-scale: 1;
+}
+[data-font-size="large"] {
+  --font-size-scale: 1.1;
+}

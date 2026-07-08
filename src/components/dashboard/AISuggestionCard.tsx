@@ -1,8 +1,8 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { Sparkles, ArrowRight } from 'lucide-react';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 
 const TYPING_SPEED = 35;
 const PAUSE_DURATION = 4000;
@@ -20,12 +20,12 @@ export default function AISuggestionCard({ tasksDueToday, overdue, notesCount }:
   const [displayedText, setDisplayedText] = useState('');
   const [isTyping, setIsTyping] = useState(true);
 
-  const tips = [
+  const tips = useMemo(() => [
     tasksDueToday > 0 ? t('dashboard.aiTip.tasksDue', { count: tasksDueToday }) : t('dashboard.aiTip.noTasksDue'),
     t('dashboard.aiTip.focusSession'),
     notesCount > 0 ? t('dashboard.aiTip.reviewNotes', { count: notesCount }) : t('dashboard.aiTip.createNote'),
     overdue > 0 ? t('dashboard.aiTip.overdueTasks', { count: overdue }) : t('dashboard.aiTip.stayOnTrack'),
-  ];
+  ], [tasksDueToday, overdue, notesCount, t]);
 
   const typeText = useCallback((text: string) => {
     setIsTyping(true);
@@ -72,11 +72,20 @@ export default function AISuggestionCard({ tasksDueToday, overdue, notesCount }:
             {t('dashboard.aiInsight')}
           </span>
         </div>
-        <div className="min-h-[3rem]">
-          <p className="text-sm text-foreground/90 leading-relaxed">
-            {displayedText}
-            {isTyping && <span className="inline-block w-0.5 h-4 bg-primary ml-0.5 animate-pulse align-text-bottom" />}
-          </p>
+        <div className="min-h-[3.5rem]">
+          <AnimatePresence mode="wait" initial={false}>
+            <motion.p
+              key={tipIndex}
+              initial={{ opacity: 0, y: 4 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -4 }}
+              transition={{ duration: 0.2 }}
+              className="text-sm text-foreground/90 leading-relaxed"
+            >
+              {displayedText}
+              {isTyping && <span className="inline-block w-0.5 h-4 bg-primary ml-0.5 animate-pulse align-text-bottom" />}
+            </motion.p>
+          </AnimatePresence>
         </div>
         <button
           onClick={() => navigate('/ai')}

@@ -2,7 +2,7 @@ import { useState, useEffect, useCallback, useRef } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
 import {
-  Loader2, Key, Check, Undo2, Monitor,
+  Loader2, Key, Check, Monitor, Pencil,
 } from 'lucide-react';
 import { useAuthStore } from '../stores/authStore';
 import { profileApi, preferencesApi } from '../api/profile';
@@ -10,10 +10,9 @@ import { devicesApi } from '../api/devices';
 import { authApi } from '../api/auth';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
-import { Button } from '@/components/ui/button';
+import { TimePicker } from '@/components/ui/date-picker';
 import { Separator } from '@/components/ui/separator';
 import AnimatedButton from '@/components/design-system/AnimatedButton';
-import GlassCard from '@/components/design-system/GlassCard';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import i18n from '../i18n/config';
@@ -27,6 +26,7 @@ import ThemePreview from '../components/settings/ThemePreview';
 import AccentColorPicker from '../components/settings/AccentColorPicker';
 import DangerZone from '../components/settings/DangerZone';
 import DeviceList from '../components/settings/DeviceList';
+import LoadingSkeleton from '@/components/design-system/LoadingSkeleton';
 
 type Theme = 'DARK' | 'LIGHT' | 'SYSTEM';
 
@@ -71,6 +71,7 @@ export default function SettingsPage() {
   const { profile, preferences, updateProfile, updatePreferences, logout, user } = useAuthStore();
   const { t } = useTranslation();
   const [activeCategory, setActiveCategory] = useState('general');
+  const [avatarEditOpen, setAvatarEditOpen] = useState(false);
 
   const [profileForm, setProfileForm] = useState<ProfileForm>({
     firstName: '', lastName: '', bio: '', avatarUrl: '',
@@ -89,8 +90,13 @@ export default function SettingsPage() {
   const [density, setDensity] = useState(() => localStorage.getItem('px-density') || 'comfortable');
   const [fontSize, setFontSize] = useState(() => localStorage.getItem('px-font-size') || 'default');
   const [reducedMotion, setReducedMotion] = useState(() => localStorage.getItem('px-reduced-motion') === 'true');
+  const [quietHoursStart, setQuietHoursStart] = useState(() => localStorage.getItem('px-quiet-hours-start') || '22:00');
+  const [quietHoursEnd, setQuietHoursEnd] = useState(() => localStorage.getItem('px-quiet-hours-end') || '07:00');
+  const [timeFormat, setTimeFormat] = useState(() => localStorage.getItem('px-time-format') || '24h');
+  const [defaultEventDuration, setDefaultEventDuration] = useState(() => parseInt(localStorage.getItem('px-default-event-duration') || '30'));
 
-  const autoSaveTimer = useRef<ReturnType<typeof setTimeout>>();
+  const isFirstRender = useRef(true);
+  const prevProfileRef = useRef<ProfileForm | null>(null);
 
   useEffect(() => {
     if (profile) setProfileForm({
@@ -117,10 +123,11 @@ export default function SettingsPage() {
   });
 
   useEffect(() => {
-    autoSaveTimer.current = setTimeout(() => {
-      updatePrefMutation.mutate(debouncedPrefs);
-    }, 1500);
-    return () => clearTimeout(autoSaveTimer.current);
+    if (isFirstRender.current) {
+      isFirstRender.current = false;
+      return;
+    }
+    updatePrefMutation.mutate(debouncedPrefs);
   }, [debouncedPrefs]);
 
   const { data: devices = [], isLoading: devicesLoading } = useQuery({
@@ -130,9 +137,21 @@ export default function SettingsPage() {
   const updateProfileMutation = useMutation({
     mutationFn: () => profileApi.update(profileForm),
     onSuccess: (updated) => {
+      prevProfileRef.current = { ...profileForm };
       updateProfile(updated);
       i18n.changeLanguage(updated.language.toLowerCase());
-      toast.success(t('settings.profileSaved'), { duration: 5000, action: { label: t('common.undo'), onClick: () => {} } });
+      toast.success(t('settings.profileSaved'), {
+        duration: 5000,
+        action: {
+          label: t('common.undo'),
+          onClick: () => {
+            if (prevProfileRef.current) {
+              setProfileForm(prevProfileRef.current);
+              profileApi.update(prevProfileRef.current).then((r) => updateProfile(r));
+            }
+          },
+        },
+      });
     },
     onError: () => toast.error(t('settings.failedToSaveProfile')),
   });
@@ -160,7 +179,15 @@ export default function SettingsPage() {
     navigate('/login');
   }, [logout, navigate]);
 
-  const handleThemeChange = (v: Theme) => setProfileForm((f) => ({ ...f, theme: v }));
+  const handleThemeChange = async (v: Theme) => {
+    setProfileForm((f) => ({ ...f, theme: v }));
+    try {
+      const updated = await profileApi.update({ theme: v });
+      updateProfile(updated);
+    } catch {
+      toast.error(t('settings.failedToSaveProfile'));
+    }
+  };
 
   const handleAccentColor = (id: string) => {
     setAccentColor(id);
@@ -184,11 +211,37 @@ export default function SettingsPage() {
     localStorage.setItem('px-reduced-motion', String(v));
   };
 
+  useEffect(() => {
+    const root = document.documentElement;
+    root.setAttribute('data-accent', accentColor);
+    root.setAttribute('data-density', density);
+    root.setAttribute('data-font-size', fontSize);
+    root.classList.toggle('reduced-motion', reducedMotion);
+    localStorage.setItem('px-accent', accentColor);
+    localStorage.setItem('px-density', density);
+    localStorage.setItem('px-font-size', fontSize);
+    localStorage.setItem('px-reduced-motion', String(reducedMotion));
+  }, [accentColor, density, fontSize, reducedMotion]);
+
   const section = (id: string, title: string, desc: string | undefined, children: React.ReactNode) => (
     <div style={{ display: activeCategory === id ? 'block' : 'none' }}>
       <SettingsSection title={title} description={desc}>{children}</SettingsSection>
     </div>
   );
+
+  if (!profile) {
+    return (
+      <div className="flex h-[calc(100vh-3.5rem)]">
+        <SettingsSidebar active={activeCategory} onSelect={setActiveCategory} />
+        <main className="flex-1 overflow-y-auto p-6 lg:p-8">
+          <div className="max-w-2xl mx-auto space-y-6">
+            <LoadingSkeleton className="h-6 w-32 mb-4" />
+            <LoadingSkeleton className="h-64 w-full rounded-xl" />
+          </div>
+        </main>
+      </div>
+    );
+  }
 
   return (
     <div className="flex h-[calc(100vh-3.5rem)]">
@@ -279,7 +332,7 @@ export default function SettingsPage() {
           {section('profile', t('settings.categories.profile'), t('settings.profileDesc'),
             <>
               <div className="flex items-center gap-4">
-                <div className="w-16 h-16 rounded-full bg-accent/50 border border-border flex items-center justify-center overflow-hidden flex-shrink-0">
+                <div className="relative w-16 h-16 rounded-full bg-accent/50 border border-border flex items-center justify-center overflow-hidden flex-shrink-0 group">
                   {profileForm.avatarUrl ? (
                     <img src={profileForm.avatarUrl} alt="" className="w-full h-full object-cover" />
                   ) : (
@@ -287,12 +340,47 @@ export default function SettingsPage() {
                       {profileForm.firstName?.[0] || profileForm.lastName?.[0] || '?'}
                     </span>
                   )}
+                  <button
+                    type="button"
+                    onClick={() => setAvatarEditOpen(!avatarEditOpen)}
+                    className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center rounded-full"
+                  >
+                    <Pencil size={14} className="text-white" />
+                  </button>
                 </div>
                 <div className="flex-1">
                   <p className="text-sm font-medium text-foreground">{profileForm.firstName} {profileForm.lastName}</p>
                   <p className="text-xs text-muted-foreground/50">{user?.email}</p>
                 </div>
               </div>
+              {avatarEditOpen && (
+                <div className="space-y-1.5">
+                  <label className="text-xs font-medium text-muted-foreground">{t('settings.avatarUrl')}</label>
+                  <div className="flex gap-2">
+                    <Input
+                      value={profileForm.avatarUrl}
+                      onChange={(e) => setProfileForm((f) => ({ ...f, avatarUrl: e.target.value }))}
+                      className="bg-accent/30 border-border h-9 text-sm flex-1"
+                      placeholder="https://example.com/avatar.jpg"
+                    />
+                    <AnimatedButton
+                      onClick={async () => {
+                        try {
+                          const updated = await profileApi.updateAvatar(profileForm.avatarUrl);
+                          updateProfile(updated);
+                          toast.success(t('settings.avatarUpdated'));
+                        } catch {
+                          toast.error(t('settings.failedToSaveProfile'));
+                        }
+                      }}
+                      size="sm"
+                      icon={<Check size={12} />}
+                    >
+                      {t('common.save')}
+                    </AnimatedButton>
+                  </div>
+                </div>
+              )}
               <div className="grid grid-cols-2 gap-3">
                 <div className="space-y-1.5">
                   <label className="text-xs font-medium text-muted-foreground">{t('settings.firstName')}</label>
@@ -318,7 +406,10 @@ export default function SettingsPage() {
                 <SettingsSelect
                   label={t('settings.language')}
                   value={profileForm.language}
-                  onValueChange={(v) => setProfileForm((f) => ({ ...f, language: v as 'EN'|'FR'|'AR' }))}
+                  onValueChange={(v) => {
+                    setProfileForm((f) => ({ ...f, language: v as 'EN'|'FR'|'AR' }));
+                    i18n.changeLanguage(v.toLowerCase());
+                  }}
                   options={[
                     { value: 'EN', label: '🇬🇧 English' },
                     { value: 'FR', label: '🇫🇷 Français' },
@@ -345,64 +436,6 @@ export default function SettingsPage() {
             </>
           )}
 
-          {/* Appearance */}
-          {section('appearance', t('settings.categories.appearance'), t('settings.appearanceDesc'),
-            <>
-              <ThemePreview value={profileForm.theme} onChange={handleThemeChange} />
-              <Separator className="bg-border/50" />
-              <div className="space-y-2">
-                <label className="text-xs font-medium text-muted-foreground">{t('settings.accentColor')}</label>
-                <AccentColorPicker value={accentColor} onChange={handleAccentColor} />
-              </div>
-              <Separator className="bg-border/50" />
-              <div className="space-y-3">
-                <div>
-                  <label className="text-xs font-medium text-muted-foreground mb-2 block">{t('settings.density')}</label>
-                  <div className="flex gap-2">
-                    {['compact', 'comfortable', 'spacious'].map((d) => (
-                      <button
-                        key={d}
-                        onClick={() => handleDensity(d)}
-                        className={`flex-1 px-3 py-2.5 rounded-lg text-xs font-medium transition-all ${
-                          density === d
-                            ? 'bg-primary text-primary-foreground shadow-sm'
-                            : 'bg-accent/30 text-muted-foreground hover:text-foreground border border-border'
-                        }`}
-                      >
-                        {t(`settings.densityOptions.${d}`)}
-                      </button>
-                    ))}
-                  </div>
-                </div>
-                <div>
-                  <label className="text-xs font-medium text-muted-foreground mb-2 block">{t('settings.fontSize')}</label>
-                  <div className="flex gap-2">
-                    {['small', 'default', 'large'].map((s) => (
-                      <button
-                        key={s}
-                        onClick={() => handleFontSize(s)}
-                        className={`flex-1 px-3 py-2.5 rounded-lg text-xs font-medium transition-all ${
-                          fontSize === s
-                            ? 'bg-primary text-primary-foreground shadow-sm'
-                            : 'bg-accent/30 text-muted-foreground hover:text-foreground border border-border'
-                        }`}
-                      >
-                        {t(`settings.fontSizeOptions.${s}`)}
-                      </button>
-                    ))}
-                  </div>
-                </div>
-              </div>
-              <Separator className="bg-border/50" />
-              <SettingsToggle
-                icon={<Monitor size={14} />}
-                label={t('settings.reducedMotion')}
-                checked={reducedMotion}
-                onCheckedChange={handleReducedMotion}
-              />
-            </>
-          )}
-
           {/* Notifications */}
           {section('notifications', t('settings.categories.notifications'), t('settings.notificationsDesc'),
             <>
@@ -415,11 +448,11 @@ export default function SettingsPage() {
               <div className="grid grid-cols-2 gap-3 pt-1">
                 <div className="space-y-1.5">
                   <label className="text-xs font-medium text-muted-foreground">{t('settings.quietHoursStart')}</label>
-                  <Input type="time" defaultValue="22:00" className="bg-accent/30 border-border h-9 text-sm" />
+                  <TimePicker value={quietHoursStart} onChange={(v) => { setQuietHoursStart(v); localStorage.setItem('px-quiet-hours-start', v); }} />
                 </div>
                 <div className="space-y-1.5">
                   <label className="text-xs font-medium text-muted-foreground">{t('settings.quietHoursEnd')}</label>
-                  <Input type="time" defaultValue="07:00" className="bg-accent/30 border-border h-9 text-sm" />
+                  <TimePicker value={quietHoursEnd} onChange={(v) => { setQuietHoursEnd(v); localStorage.setItem('px-quiet-hours-end', v); }} />
                 </div>
               </div>
             </>
@@ -528,8 +561,8 @@ export default function SettingsPage() {
               />
               <SettingsSelect
                 label={t('settings.timeFormat')}
-                value="24h"
-                onValueChange={() => {}}
+                value={timeFormat}
+                onValueChange={(v) => { setTimeFormat(v); localStorage.setItem('px-time-format', v); }}
                 options={[
                   { value: '12h', label: t('settings.time12h') },
                   { value: '24h', label: t('settings.time24h') },
@@ -537,8 +570,8 @@ export default function SettingsPage() {
               />
               <SettingsSlider
                 label={t('settings.defaultEventDuration')}
-                value={30}
-                onValueChange={() => {}}
+                value={defaultEventDuration}
+                onValueChange={(v) => { setDefaultEventDuration(v); localStorage.setItem('px-default-event-duration', String(v)); }}
                 min={5} max={180} step={5}
                 formatValue={(v) => `${v}min`}
               />
@@ -605,10 +638,16 @@ export default function SettingsPage() {
                 <Input type="password" placeholder={t('settings.currentPassword')} value={pwForm.currentPassword} onChange={(e) => setPwForm((f) => ({ ...f, currentPassword: e.target.value }))} className="bg-accent/30 border-border h-9 text-sm" />
                 <Input type="password" placeholder={t('settings.newPassword')} value={pwForm.newPassword} onChange={(e) => setPwForm((f) => ({ ...f, newPassword: e.target.value }))} className="bg-accent/30 border-border h-9 text-sm" />
                 <Input type="password" placeholder={t('settings.confirmNewPassword')} value={pwForm.confirmPassword} onChange={(e) => setPwForm((f) => ({ ...f, confirmPassword: e.target.value }))} className="bg-accent/30 border-border h-9 text-sm" />
+                {pwForm.confirmPassword && pwForm.newPassword !== pwForm.confirmPassword && (
+                  <p className="text-[11px] text-destructive">{t('settings.passwordsDoNotMatch')}</p>
+                )}
+                {pwForm.newPassword && pwForm.newPassword.length > 0 && pwForm.newPassword.length < 8 && (
+                  <p className="text-[11px] text-destructive">{t('settings.passwordTooShort')}</p>
+                )}
                 <AnimatedButton
                   onClick={() => changePwMutation.mutate()}
                   loading={changePwMutation.isPending}
-                  disabled={!pwForm.currentPassword || !pwForm.newPassword || pwForm.newPassword !== pwForm.confirmPassword}
+                  disabled={!pwForm.currentPassword || !pwForm.newPassword || pwForm.newPassword !== pwForm.confirmPassword || pwForm.newPassword.length < 8}
                   size="sm"
                 >
                   {t('settings.changePasswordButton')}

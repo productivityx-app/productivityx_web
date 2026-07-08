@@ -8,6 +8,7 @@ import { eventsApi } from '@/api/events';
 import { CalendarEvent } from '@/types';
 import { useTranslation } from 'react-i18next';
 import { cn } from '@/lib/utils';
+import { DatePicker, TimePicker } from '@/components/ui/date-picker';
 
 const EVENT_COLORS = ['#6366F1', '#8B5CF6', '#EC4899', '#EF4444', '#F59E0B', '#10B981', '#06B6D4'];
 
@@ -154,17 +155,12 @@ export default function EventModal({ open, onClose, event, defaultDate, defaultS
               />
 
               <div className="flex items-center gap-2">
-                <input
-                  type="date"
-                  value={date}
-                  onChange={(e) => setDate(e.target.value)}
-                  className="flex-1 px-3 py-2 bg-background border border-border rounded-xl text-sm text-foreground outline-none focus:ring-2 focus:ring-ring"
-                />
+                <DatePicker value={date} onChange={setDate} className="flex-1" />
                 {!allDay && (
                   <>
-                    <input type="time" value={startTime} onChange={(e) => setStartTime(e.target.value)} className="px-3 py-2 bg-background border border-border rounded-xl text-sm text-foreground outline-none focus:ring-2 focus:ring-ring" />
+                    <TimePicker value={startTime} onChange={setStartTime} className="flex-1" />
                     <span className="text-muted-foreground text-xs">–</span>
-                    <input type="time" value={endTime} onChange={(e) => setEndTime(e.target.value)} className="px-3 py-2 bg-background border border-border rounded-xl text-sm text-foreground outline-none focus:ring-2 focus:ring-ring" />
+                    <TimePicker value={endTime} onChange={setEndTime} className="flex-1" />
                   </>
                 )}
               </div>

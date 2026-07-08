@@ -36,7 +36,6 @@ export default function TimerRing({ timeRemaining, totalDuration, color, label, 
   const strokeW = isLarge ? 10 : 8;
   const viewBox = isLarge ? 260 : 200;
   const cx = viewBox / 2;
-  const textSize = isLarge ? 'text-8xl' : 'text-5xl';
 
   return (
     <div
@@ -69,8 +68,8 @@ export default function TimerRing({ timeRemaining, totalDuration, color, label, 
           className="transition-all duration-500 ease-linear"
         />
       </svg>
-      <div className="absolute inset-0 flex flex-col items-center justify-center">
-        <span className={cn('font-bold text-foreground tabular-nums tracking-tight', isLarge ? 'text-8xl leading-none' : 'text-5xl')}>
+      <div className={cn("absolute flex flex-col items-center justify-center", isLarge && "inset-10")}>
+        <span className={cn('font-bold text-foreground tabular-nums tracking-tight', isLarge ? 'text-6xl leading-none' : 'text-5xl')}>
           {pad(mins)}:{pad(secs)}
         </span>
         <span className={cn('text-muted-foreground', isLarge ? 'text-base mt-2' : 'text-xs mt-1')}>{label}</span>

@@ -1,8 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { Play, Pause, Square, SkipForward, Maximize2, History, Timer, Zap } from 'lucide-react';
-import EmptyState from '@/components/common/EmptyState';
+import { Play, Pause, Square, SkipForward, Maximize2, History, Timer, RotateCcw } from 'lucide-react';
 import { toast } from 'sonner';
 import { AnimatePresence, motion } from 'framer-motion';
 import { pomodoroApi } from '../api/pomodoro';
@@ -77,7 +76,7 @@ export default function PomodoroPage() {
     onError: () => toast.error(t('pomodoro.failedToStart')),
   });
 
-  const handleStart = (opts: { type: 'focus' | 'shortBreak' | 'longBreak'; duration: number; taskId?: string; intention?: string }) => {
+  const handleStart = (opts: { type: 'focus' | 'shortBreak' | 'longBreak'; duration: number; taskId?: string; intention?: string; sound?: SoundType; volume?: number }) => {
     const apiType = opts.type === 'focus' ? 'FOCUS' : opts.type === 'shortBreak' ? 'SHORT_BREAK' : 'LONG_BREAK';
     setIntention(opts.intention || '');
     setLinkedTaskId(opts.taskId || '');
@@ -164,20 +163,34 @@ export default function PomodoroPage() {
                 <History size={14} />{t('pomodoro.history')}
               </button>
             </div>
-            <EmptyState
-              icon={Timer}
-              title="Ready to focus?"
-              description="Start a focused work session and make progress on your tasks. You've got this!"
-              gradient="pomodoro"
-              secondaryIcon={Zap}
-              size="md"
-              badge={{ label: 'Pro tip', variant: 'tip' }}
-            >
-              <SessionSetup
-                onStart={handleStart}
-                tasks={tasksData?.content?.map((t: any) => ({ id: t.id, title: t.title }))}
-              />
-            </EmptyState>
+
+            {activeSession && timeRemaining > 0 && (
+              <div className="mb-6 p-4 rounded-xl bg-primary/5 border border-primary/20 flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center">
+                    <Timer size={18} className="text-primary" />
+                  </div>
+                  <div>
+                    <p className="text-sm font-medium text-foreground">{t('pomodoro.sessionInProgress')}</p>
+                    <p className="text-xs text-muted-foreground">
+                      {Math.floor(timeRemaining / 60)}:{(timeRemaining % 60).toString().padStart(2, '0')} {t('pomodoro.remaining')}
+                    </p>
+                  </div>
+                </div>
+                <button
+                  onClick={() => { setPhase('focus'); setCurrentType(activeSession.type as 'FOCUS' | 'SHORT_BREAK' | 'LONG_BREAK'); }}
+                  className="flex items-center gap-1.5 px-4 py-2 rounded-lg bg-primary text-primary-foreground text-sm font-medium hover:opacity-90 transition-all"
+                >
+                  <RotateCcw size={14} />
+                  {t('pomodoro.resume')}
+                </button>
+              </div>
+            )}
+
+            <SessionSetup
+              onStart={handleStart}
+              tasks={tasksData?.content?.map((t: any) => ({ id: t.id, title: t.title }))}
+            />
           </motion.div>
         )}
 
