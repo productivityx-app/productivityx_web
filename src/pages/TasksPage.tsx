@@ -6,7 +6,7 @@ import { motion } from 'framer-motion';
 import { toast } from 'sonner';
 import { stagger } from '@/lib/animations';
 import { DndContext, closestCenter, PointerSensor, useSensor, useSensors, DragEndEvent, DragOverlay } from '@dnd-kit/core';
-import { format, isToday, isPast, parseISO, startOfMonth, endOfMonth, eachDayOfInterval, getDay, startOfWeek, endOfWeek, isSameDay, isSameMonth } from 'date-fns';
+import { format, isToday, isPast, parseISO, addDays, startOfMonth, endOfMonth, eachDayOfInterval, getDay, startOfWeek, endOfWeek, isSameDay, isSameMonth } from 'date-fns';
 import { tasksApi } from '@/api/tasks';
 import { Task, TaskStatus, TaskPriority } from '@/types';
 import { cn } from '@/lib/utils';
@@ -73,6 +73,7 @@ export default function TasksPage() {
   const [collapsedColumns, setCollapsedColumns] = useState<Set<string>>(new Set());
   const [activeDragId, setActiveDragId] = useState<string | null>(null);
   const [calendarMonth, setCalendarMonth] = useState(new Date());
+  const [filterDate, setFilterDate] = useState<string>('');
 
   const { data, isLoading, isError, refetch } = useQuery({
     queryKey: ['tasks'],
@@ -107,6 +108,20 @@ export default function TasksPage() {
     if (debouncedSearch) {
       const q = debouncedSearch.toLowerCase();
       filtered = filtered.filter((t) => t.title.toLowerCase().includes(q) || (t.description?.toLowerCase() || '').includes(q));
+    }
+
+    if (filterDate) {
+      if (filterDate === 'this-week') {
+        const weekStart = startOfWeek(new Date(), { weekStartsOn: 1 });
+        const weekEnd = endOfWeek(weekStart, { weekStartsOn: 1 });
+        filtered = filtered.filter((t) => {
+          if (!t.dueDate) return false;
+          const d = parseISO(t.dueDate);
+          return d >= weekStart && d <= weekEnd;
+        });
+      } else {
+        filtered = filtered.filter((t) => t.dueDate && format(parseISO(t.dueDate), 'yyyy-MM-dd') === filterDate);
+      }
     }
 
     for (const f of activeFilters) {
@@ -148,7 +163,7 @@ export default function TasksPage() {
     });
 
     return filtered;
-  }, [tasks, debouncedSearch, activeFilters, sort, sortDir]);
+  }, [tasks, debouncedSearch, activeFilters, sort, sortDir, filterDate]);
 
   const groupedTasks = useMemo(() => {
     if (group === 'none') return { '': filteredTasks };
@@ -264,6 +279,37 @@ export default function TasksPage() {
       </div>
 
       {viewMode !== 'kanban' && (
+        <div className="flex items-center gap-1.5 mb-2 flex-wrap">
+          {[
+            { label: 'Today', value: format(new Date(), 'yyyy-MM-dd') },
+            { label: 'Tomorrow', value: format(addDays(new Date(), 1), 'yyyy-MM-dd') },
+            { label: 'This Week', value: 'this-week' },
+          ].map(({ label, value }) => (
+            <button
+              key={label}
+              onClick={() => setFilterDate(filterDate === value ? '' : value)}
+              className={cn(
+                'rounded-lg px-2.5 py-1.5 text-xs font-medium transition-colors',
+                filterDate === value
+                  ? 'bg-primary text-primary-foreground shadow-sm'
+                  : 'bg-accent/60 text-foreground hover:bg-accent',
+              )}
+            >
+              {label}
+            </button>
+          ))}
+          {filterDate && (
+            <button
+              onClick={() => setFilterDate('')}
+              className="rounded-lg px-2.5 py-1.5 text-xs font-medium text-muted-foreground hover:text-destructive hover:bg-destructive/10 transition-colors"
+            >
+              Clear
+            </button>
+          )}
+        </div>
+      )}
+
+      {viewMode !== 'kanban' && (
         <div className="mb-4">
           <TaskFilters
             search={search} onSearchChange={(v) => { setSearch(v); setSearchDebounced(v); }}
@@ -323,17 +369,19 @@ export default function TasksPage() {
               const key = format(day, 'yyyy-MM-dd');
               const dayTasks = tasksByDate[key] || [];
               return (
-                <div
-                  key={key}
-                  className={cn(
-                    'bg-card min-h-[80px] p-1.5 transition-colors',
-                    !isSameMonth(day, calendarMonth) && 'opacity-30',
-                    isToday(day) && 'bg-primary/[0.04]',
-                  )}
-                >
-                  <span className={cn('text-xs font-medium', isToday(day) ? 'text-primary' : 'text-muted-foreground')}>
-                    {format(day, 'd')}
-                  </span>
+                  <div
+                    key={key}
+                    onClick={() => { setFilterDate(key); setViewMode('list'); }}
+                    className={cn(
+                      'bg-card min-h-[80px] p-1.5 transition-colors cursor-pointer',
+                      !isSameMonth(day, calendarMonth) && 'opacity-30',
+                      isToday(day) && 'bg-primary/[0.04]',
+                      filterDate === key && 'ring-2 ring-primary/40',
+                    )}
+                  >
+                    <span className={cn('text-xs font-medium', isToday(day) ? 'text-primary' : 'text-muted-foreground')}>
+                      {format(day, 'd')}
+                    </span>
                   <div className="mt-1 space-y-0.5">
                     {dayTasks.slice(0, 3).map((t) => (
                       <button

@@ -3,6 +3,7 @@ import { format, parseISO, isSameDay, isToday, differenceInMinutes, areIntervals
 import { motion } from 'framer-motion';
 import { cn } from '@/lib/utils';
 import { CalendarEvent } from '@/types';
+import { useTimeFormat } from '@/hooks/use-time-format';
 import EventCard from './EventCard';
 
 interface Props {
@@ -17,6 +18,7 @@ const SLOT_HEIGHT = 48;
 const HOUR_HEIGHT = SLOT_HEIGHT * 2;
 
 export default function DayView({ currentDate, events, onEventClick, onSlotClick }: Props) {
+  const { formatTime } = useTimeFormat();
   const now = new Date();
   const currentTimeTop = (now.getHours() * 60 + now.getMinutes()) / 30 * (SLOT_HEIGHT / 2);
 
@@ -73,7 +75,7 @@ export default function DayView({ currentDate, events, onEventClick, onSlotClick
           <div className="absolute left-0 top-0 bottom-0 w-14">
             {HOURS.map((hour) => (
               <div key={hour} className="absolute text-[10px] text-muted-foreground pr-2 text-right w-full" style={{ top: hour * HOUR_HEIGHT - 6 }}>
-                {hour === 0 ? '' : format(new Date().setHours(hour, 0, 0, 0), 'ha')}
+                {hour === 0 ? '' : formatTime(new Date().setHours(hour, 0, 0, 0))}
               </div>
             ))}
           </div>

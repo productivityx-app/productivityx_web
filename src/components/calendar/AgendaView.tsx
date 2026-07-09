@@ -4,6 +4,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { cn } from '@/lib/utils';
 import { useTranslation } from 'react-i18next';
 import { CalendarEvent } from '@/types';
+import { useTimeFormat } from '@/hooks/use-time-format';
 import EventCard from './EventCard';
 
 interface Props {
@@ -14,6 +15,7 @@ interface Props {
 
 export default function AgendaView({ currentDate, events, onEventClick }: Props) {
   const { t } = useTranslation();
+  const { formatTime, use24Hour } = useTimeFormat();
 
   const daysWithEvents = useMemo(() => {
     const now = startOfDay(currentDate);
@@ -54,14 +56,20 @@ export default function AgendaView({ currentDate, events, onEventClick }: Props)
                     className="flex items-start gap-3 px-3 py-2.5 rounded-xl hover:bg-accent/50 cursor-pointer transition-colors"
                   >
                     <div className="flex flex-col items-center w-10 flex-shrink-0">
-                      <span className="text-xs font-semibold text-foreground">{format(start, 'h:mm')}</span>
-                      <span className="text-[10px] text-muted-foreground">{format(start, 'a')}</span>
+                      {(() => {
+                        const ft = formatTime(start);
+                        const spaceIdx = ft.lastIndexOf(' ');
+                        if (spaceIdx > 0) {
+                          return <><span className="text-xs font-semibold text-foreground">{ft.slice(0, spaceIdx)}</span><span className="text-[10px] text-muted-foreground">{ft.slice(spaceIdx + 1)}</span></>;
+                        }
+                        return <span className="text-xs font-semibold text-foreground">{ft}</span>;
+                      })()}
                     </div>
                     <div className="w-0.5 rounded-full flex-shrink-0 self-stretch" style={{ backgroundColor: event.color || '#6366F1' }} />
                     <div className="flex-1 min-w-0">
                       <p className="text-sm font-medium text-foreground">{event.title}</p>
                       <p className="text-xs text-muted-foreground">
-                        {event.allDay ? t('calendar.allDay') : `${format(start, 'h:mm a')} – ${format(end, 'h:mm a')}`}
+                        {event.allDay ? t('calendar.allDay') : `${formatTime(start)} \u2013 ${formatTime(end)}`}
                         {event.location && ` · ${event.location}`}
                       </p>
                       {event.description && (

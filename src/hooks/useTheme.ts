@@ -1,10 +1,13 @@
-import { useEffect } from 'react';
+import { useLayoutEffect } from 'react';
 import { useAuthStore } from '../stores/authStore';
 
 export function useTheme() {
   const { profile } = useAuthStore();
 
-  useEffect(() => {
+  // useLayoutEffect (rather than useEffect) applies the theme class before the
+  // browser paints, which avoids a flash of the wrong theme (FOUC) on load
+  // and on theme switches.
+  useLayoutEffect(() => {
     const theme = profile?.theme || 'SYSTEM';
     const root = document.documentElement;
 

@@ -1,9 +1,10 @@
+import { useTranslation } from 'react-i18next';
 import { cn } from '@/lib/utils';
 
 const themes = [
   {
     id: 'LIGHT' as const,
-    label: 'Light',
+    labelKey: 'common.themeLight',
     preview: 'bg-white border border-gray-200',
     sidebar: 'bg-gray-50',
     content: 'bg-white',
@@ -13,7 +14,7 @@ const themes = [
   },
   {
     id: 'DARK' as const,
-    label: 'Dark',
+    labelKey: 'common.themeDark',
     preview: 'bg-[#1c1c1e] border border-[#2c2c2e]',
     sidebar: 'bg-[#2c2c2e]',
     content: 'bg-[#1c1c1e]',
@@ -23,7 +24,7 @@ const themes = [
   },
   {
     id: 'SYSTEM' as const,
-    label: 'System',
+    labelKey: 'common.themeSystem',
     preview: 'bg-gradient-to-r from-white to-[#1c1c1e] border border-gray-200 dark:border-[#2c2c2e]',
     sidebar: 'bg-gradient-to-r from-gray-50 to-[#2c2c2e]',
     content: 'bg-gradient-to-r from-white to-[#1c1c1e]',
@@ -39,14 +40,20 @@ interface Props {
 }
 
 export default function ThemePreview({ value, onChange }: Props) {
+  const { t } = useTranslation();
+
   return (
     <div className="grid grid-cols-3 gap-3">
       {themes.map((theme) => {
         const selected = value === theme.id;
+        const label = t(theme.labelKey, theme.id.charAt(0) + theme.id.slice(1).toLowerCase());
         return (
           <button
             key={theme.id}
+            type="button"
             onClick={() => onChange(theme.id)}
+            aria-pressed={selected}
+            aria-label={label}
             className={cn(
               'rounded-xl overflow-hidden border-2 transition-all',
               selected ? 'border-primary shadow-md shadow-primary/10' : 'border-border hover:border-muted-foreground/30',
@@ -63,7 +70,7 @@ export default function ThemePreview({ value, onChange }: Props) {
               </div>
             </div>
             <div className={cn('px-2.5 py-1.5 text-[11px] font-medium text-center', selected ? 'bg-primary text-primary-foreground' : 'bg-accent/30 text-muted-foreground')}>
-              {theme.label}
+              {label}
             </div>
           </button>
         );

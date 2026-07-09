@@ -100,7 +100,7 @@
   --radius-xl: calc(var(--radius) + 4px);
 }
 
-/* ─── Light Mode ─── */
+/* â”€â”€â”€ Light Mode â”€â”€â”€ */
 :root {
   --button-outline: rgba(0,0,0, .10);
   --badge-outline: rgba(0,0,0, .05);
@@ -162,7 +162,12 @@
   --shadow-xl: 0 20px 25px -5px rgb(0 0 0 / 0.08), 0 8px 10px -6px rgb(0 0 0 / 0.04);
   --shadow-2xl: 0 25px 50px -12px rgb(0 0 0 / 0.15);
   --tracking-normal: 0em;
-  --spacing: 0.25rem;
+  --spacing-scale: 1;
+  --font-size-scale: 1;
+  /* Tailwind v4 resolves utilities like p-4 as calc(var(--spacing) * 4) against
+     the live value of this variable, so scaling it here makes the Settings
+     density control (compact/comfortable/spacious) take effect app-wide. */
+  --spacing: calc(0.25rem * var(--spacing-scale));
 
   --sidebar-primary-border: hsl(var(--sidebar-primary));
   --sidebar-primary-border: hsl(from hsl(var(--sidebar-primary)) h s calc(l + var(--opaque-button-border-intensity)) / alpha);
@@ -180,7 +185,7 @@
   --destructive-border: hsl(from hsl(var(--destructive)) h s calc(l + var(--opaque-button-border-intensity)) / alpha);
 }
 
-/* ─── Dark Mode ─── */
+/* â”€â”€â”€ Dark Mode â”€â”€â”€ */
 .dark {
   --button-outline: rgba(255,255,255, .10);
   --badge-outline: rgba(255,255,255, .05);
@@ -239,7 +244,69 @@
   --shadow-2xl: 0 25px 50px -12px rgb(0 0 0 / 0.5);
 }
 
-/* ─── Animation Tokens ─── */
+/* ─── Accent Color Overrides ───
+   Wired up to the Accent Color picker in Settings (`data-accent` attribute on
+   <html>). Each block overrides only the hue-carrying variables; the
+   relative-color *-border formulas defined above automatically recompute
+   from the new --primary at used-value time, so borders stay in sync too. */
+[data-accent="indigo"] {
+  --primary: 239 84% 67%;
+  --ring: 239 84% 67%;
+  --sidebar-primary: 239 84% 67%;
+  --sidebar-ring: 239 84% 67%;
+  --chart-1: 239 84% 67%;
+}
+[data-accent="blue"] {
+  --primary: 217 91% 60%;
+  --ring: 217 91% 60%;
+  --sidebar-primary: 217 91% 60%;
+  --sidebar-ring: 217 91% 60%;
+  --chart-1: 217 91% 60%;
+}
+[data-accent="purple"] {
+  --primary: 271 81% 66%;
+  --ring: 271 81% 66%;
+  --sidebar-primary: 271 81% 66%;
+  --sidebar-ring: 271 81% 66%;
+  --chart-1: 271 81% 66%;
+}
+[data-accent="green"] {
+  --primary: 142 71% 45%;
+  --ring: 142 71% 45%;
+  --sidebar-primary: 142 71% 45%;
+  --sidebar-ring: 142 71% 45%;
+  --chart-1: 142 71% 45%;
+}
+[data-accent="orange"] {
+  --primary: 25 95% 53%;
+  --ring: 25 95% 53%;
+  --sidebar-primary: 25 95% 53%;
+  --sidebar-ring: 25 95% 53%;
+  --chart-1: 25 95% 53%;
+}
+[data-accent="red"] {
+  --primary: 0 84% 60%;
+  --ring: 0 84% 60%;
+  --sidebar-primary: 0 84% 60%;
+  --sidebar-ring: 0 84% 60%;
+  --chart-1: 0 84% 60%;
+}
+[data-accent="pink"] {
+  --primary: 330 81% 60%;
+  --ring: 330 81% 60%;
+  --sidebar-primary: 330 81% 60%;
+  --sidebar-ring: 330 81% 60%;
+  --chart-1: 330 81% 60%;
+}
+[data-accent="teal"] {
+  --primary: 173 80% 36%;
+  --ring: 173 80% 36%;
+  --sidebar-primary: 173 80% 36%;
+  --sidebar-ring: 173 80% 36%;
+  --chart-1: 173 80% 36%;
+}
+
+/* â”€â”€â”€ Animation Tokens â”€â”€â”€ */
 :root {
   --duration-instant: 0ms;
   --duration-fast: 150ms;
@@ -251,7 +318,7 @@
   --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
 }
 
-/* ─── Keyframes ─── */
+/* â”€â”€â”€ Keyframes â”€â”€â”€ */
 @keyframes fade-in {
   from { opacity: 0; }
   to { opacity: 1; }
@@ -303,7 +370,7 @@
   to { opacity: 1; transform: translateX(0) scale(1); }
 }
 
-/* ─── Animation Utilities ─── */
+/* â”€â”€â”€ Animation Utilities â”€â”€â”€ */
 .animate-fade-in { animation: fade-in var(--duration-normal) var(--ease-out); }
 .animate-fade-in-up { animation: fade-in-up var(--duration-slow) var(--ease-out); }
 .animate-fade-in-down { animation: fade-in-down var(--duration-slow) var(--ease-out); }
@@ -317,7 +384,7 @@
 .animate-ripple { animation: ripple 0.6s ease-out forwards; }
 .animate-notification-slide { animation: notification-slide var(--duration-slow) var(--ease-spring); }
 
-/* ─── Glassmorphism ─── */
+/* â”€â”€â”€ Glassmorphism â”€â”€â”€ */
 .glass {
   background: hsl(var(--card) / 0.6);
   backdrop-filter: blur(12px);
@@ -331,7 +398,7 @@
   border: 1px solid hsl(var(--border) / 0.6);
 }
 
-/* ─── Scrollbar ─── */
+/* â”€â”€â”€ Scrollbar â”€â”€â”€ */
 ::-webkit-scrollbar {
   width: 6px;
   height: 6px;
@@ -351,7 +418,7 @@
   scrollbar-color: hsl(var(--muted-foreground) / 0.2) transparent;
 }
 
-/* ─── Selection ─── */
+/* â”€â”€â”€ Selection â”€â”€â”€ */
 ::selection {
   background: hsl(239 84% 67% / 0.2);
   color: inherit;
@@ -361,7 +428,7 @@
   color: inherit;
 }
 
-/* ─── Base ─── */
+/* â”€â”€â”€ Base â”€â”€â”€ */
 @layer base {
   * {
     @apply border-border;
@@ -369,6 +436,10 @@
 
   html {
     scroll-behavior: smooth;
+    /* Tailwind's rem-based text utilities scale off the root font-size, so
+       this makes the Settings font-size control (small/default/large)
+       take effect app-wide. */
+    font-size: calc(16px * var(--font-size-scale, 1));
   }
 
   body {
@@ -388,7 +459,7 @@
   }
 }
 
-/* ─── Elevation System (kept from original) ─── */
+/* â”€â”€â”€ Elevation System (kept from original) â”€â”€â”€ */
 @layer utilities {
   input[type="search"]::-webkit-search-cancel-button {
     @apply hidden;
@@ -496,4 +567,205 @@
 }
 [data-font-size="large"] {
   --font-size-scale: 1.1;
+}
+
+/* ── Flatpickr custom theme ── */
+.flatpickr-calendar {
+  background: hsl(var(--card)) !important;
+  border: 1px solid hsl(var(--border)) !important;
+  border-radius: var(--radius-xl) !important;
+  box-shadow: 0 10px 30px -8px rgba(0, 0, 0, 0.25) !important;
+  font-family: var(--font-sans) !important;
+}
+.flatpickr-calendar:before,
+.flatpickr-calendar:after {
+  display: none !important;
+}
+.flatpickr-months {
+  padding: 8px 8px 0 !important;
+}
+.flatpickr-months .flatpickr-month {
+  height: 36px !important;
+}
+.flatpickr-current-month {
+  font-size: 14px !important;
+  font-weight: 600 !important;
+  color: hsl(var(--foreground)) !important;
+}
+.flatpickr-current-month .flatpickr-monthDropdown-months {
+  background: transparent !important;
+  color: hsl(var(--foreground)) !important;
+  font-weight: 600 !important;
+}
+.flatpickr-current-month .flatpickr-monthDropdown-months:hover {
+  background: hsl(var(--accent)) !important;
+}
+.flatpickr-current-month input.cur-year {
+  color: hsl(var(--foreground)) !important;
+  font-weight: 600 !important;
+}
+.flatpickr-weekdays {
+  padding: 0 8px !important;
+  height: 32px !important;
+}
+.flatpickr-weekday {
+  color: hsl(var(--muted-foreground)) !important;
+  font-size: 11px !important;
+  font-weight: 500 !important;
+}
+.flatpickr-days {
+  padding: 4px 8px 8px !important;
+}
+.dayContainer {
+  min-width: 240px !important;
+  max-width: 240px !important;
+}
+.flatpickr-day {
+  color: hsl(var(--foreground)) !important;
+  border-radius: 8px !important;
+  font-size: 13px !important;
+  line-height: 36px !important;
+  height: 36px !important;
+  max-width: 36px !important;
+  margin: 1px !important;
+  transition: background 0.15s, color 0.15s !important;
+  border: none !important;
+}
+.flatpickr-day:hover,
+.flatpickr-day:focus {
+  background: hsl(var(--accent)) !important;
+  color: hsl(var(--foreground)) !important;
+}
+.flatpickr-day.prevMonthDay,
+.flatpickr-day.nextMonthDay {
+  color: hsl(var(--muted-foreground) / 0.4) !important;
+}
+.flatpickr-day.today {
+  color: hsl(var(--primary)) !important;
+  font-weight: 700 !important;
+  background: transparent !important;
+  border: 1px solid hsl(var(--primary) / 0.3) !important;
+}
+.flatpickr-day.selected,
+.flatpickr-day.startRange,
+.flatpickr-day.endRange,
+.flatpickr-day.inRange {
+  background: hsl(var(--primary)) !important;
+  color: hsl(var(--primary-foreground)) !important;
+  font-weight: 600 !important;
+  border: none !important;
+  box-shadow: none !important;
+}
+.flatpickr-day.inRange {
+  border-radius: 0 !important;
+  background: hsl(var(--primary) / 0.15) !important;
+  color: hsl(var(--foreground)) !important;
+}
+.flatpickr-day.inRange:hover {
+  background: hsl(var(--primary) / 0.2) !important;
+}
+.flatpickr-day.startRange {
+  border-radius: 8px 0 0 8px !important;
+}
+.flatpickr-day.endRange {
+  border-radius: 0 8px 8px 0 !important;
+}
+.flatpickr-day.startRange.endRange {
+  border-radius: 8px !important;
+}
+.flatpickr-day.selected.startRange + .endRange:not(:nth-child(7n+1)),
+.flatpickr-day.startRange + .endRange:not(:nth-child(7n+1)) {
+  box-shadow: none !important;
+}
+.flatpickr-day.flatpickr-disabled {
+  color: hsl(var(--muted-foreground) / 0.3) !important;
+  cursor: not-allowed !important;
+}
+.flatpickr-day.flatpickr-disabled:hover {
+  background: transparent !important;
+}
+.flatpickr-monthSelect-month {
+  border-radius: 8px !important;
+  font-size: 13px !important;
+  color: hsl(var(--foreground)) !important;
+}
+.flatpickr-monthSelect-month:hover {
+  background: hsl(var(--accent)) !important;
+}
+.flatpickr-monthSelect-month.selected {
+  background: hsl(var(--primary)) !important;
+  color: hsl(var(--primary-foreground)) !important;
+}
+.flatpickr-time {
+  border-top: 1px solid hsl(var(--border)) !important;
+  max-height: 48px !important;
+  padding: 4px !important;
+}
+.flatpickr-time input {
+  color: hsl(var(--foreground)) !important;
+  font-size: 13px !important;
+  font-weight: 500 !important;
+}
+.flatpickr-time .flatpickr-time-separator {
+  color: hsl(var(--muted-foreground)) !important;
+}
+.flatpickr-time .flatpickr-am-pm {
+  color: hsl(var(--foreground)) !important;
+  font-size: 12px !important;
+  font-weight: 500 !important;
+  border-radius: 6px !important;
+}
+.flatpickr-time .flatpickr-am-pm:hover {
+  background: hsl(var(--accent)) !important;
+}
+.flatpickr-time .flatpickr-am-pm:focus {
+  background: hsl(var(--primary)) !important;
+  color: hsl(var(--primary-foreground)) !important;
+}
+.flatpickr-time input:hover,
+.flatpickr-time .flatpickr-am-pm:hover {
+  background: hsl(var(--accent)) !important;
+}
+.flatpickr-time input:focus,
+.flatpickr-time .flatpickr-am-pm:focus {
+  background: hsl(var(--primary) / 0.1) !important;
+}
+.numInputWrapper span {
+  border-color: hsl(var(--border)) !important;
+}
+.numInputWrapper span:hover {
+  background: hsl(var(--accent)) !important;
+}
+.numInputWrapper span:after {
+  border-top-color: hsl(var(--muted-foreground)) !important;
+  border-bottom-color: hsl(var(--muted-foreground)) !important;
+}
+.flatpickr-current-month .numInputWrapper span.arrowUp:after {
+  border-bottom-color: hsl(var(--muted-foreground)) !important;
+}
+.flatpickr-current-month .numInputWrapper span.arrowDown:after {
+  border-top-color: hsl(var(--muted-foreground)) !important;
+}
+.flatpickr-months .flatpickr-prev-month,
+.flatpickr-months .flatpickr-next-month {
+  fill: hsl(var(--muted-foreground)) !important;
+  padding: 4px !important;
+  border-radius: 6px !important;
+  transition: background 0.15s !important;
+}
+.flatpickr-months .flatpickr-prev-month:hover,
+.flatpickr-months .flatpickr-next-month:hover {
+  fill: hsl(var(--foreground)) !important;
+  background: hsl(var(--accent)) !important;
+}
+.flatpickr-prev-month svg,
+.flatpickr-next-month svg {
+  width: 14px !important;
+  height: 14px !important;
+}
+.flatpickr-innerContainer {
+  overflow: visible !important;
+}
+.flatpickr-rContainer {
+  overflow: visible !important;
 }

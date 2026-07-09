@@ -1,138 +1,19 @@
 import { useState, useEffect, useMemo } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { ArrowLeft, Save, Trash2, Sparkles, History, CalendarIcon, Clock } from 'lucide-react';
+import { ArrowLeft, Save, Trash2, Sparkles, History } from 'lucide-react';
 import { toast } from 'sonner';
 import { format, differenceInDays, isPast } from 'date-fns';
 import { tasksApi } from '@/api/tasks';
 import { useTranslation } from 'react-i18next';
 import { motion } from 'framer-motion';
-import { cn } from '@/lib/utils';
+import { useTimeFormat } from '@/hooks/use-time-format';
 import { Skeleton } from '@/components/ui/skeleton';
-import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { DayPicker } from 'react-day-picker';
+import { DatePicker, TimePicker } from '@/components/ui/date-picker';
 import SubtaskList from '@/components/tasks/SubtaskList';
 import TaskProperties from '@/components/tasks/TaskProperties';
 import PriorityBadge from '@/components/common/PriorityBadge';
-
-function M3TimePicker({ value, onChange }: { value: string; onChange: (v: string) => void }) {
-  const [open, setOpen] = useState(false);
-  const [mode, setMode] = useState<'hour' | 'minute'>('hour');
-
-  const hour24 = value ? parseInt(value.split(':')[0]) : 12;
-  const minute = value ? parseInt(value.split(':')[1]) : 0;
-  const period = hour24 >= 12 ? 'PM' : 'AM';
-  const hour12 = hour24 % 12 || 12;
-
-  const [selHour, setSelHour] = useState(hour12);
-  const [selMinute, setSelMinute] = useState(minute);
-  const [selPeriod, setSelPeriod] = useState(period);
-
-  const S = 260, C = S / 2, R = 96;
-  const items = mode === 'hour'
-    ? [12, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11]
-    : [0, 5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 55];
-
-  const selectedValue = mode === 'hour' ? selHour : selMinute;
-  const selIndex = items.indexOf(selectedValue);
-
-  const coords = (index: number) => {
-    const a = (index / items.length) * 2 * Math.PI - Math.PI / 2;
-    return { x: C + R * Math.cos(a), y: C + R * Math.sin(a) };
-  };
-
-  const p = selIndex >= 0 ? coords(selIndex) : null;
-
-  const pick = (val: number) => {
-    if (mode === 'hour') {
-      setSelHour(val);
-      setMode('minute');
-    } else {
-      setSelMinute(val);
-      const h = selHour === 12 ? 0 : selHour;
-      const h24 = selPeriod === 'AM' ? h : h + 12;
-      onChange(`${String(h24).padStart(2, '0')}:${String(val).padStart(2, '0')}`);
-      setOpen(false);
-    }
-  };
-
-  return (
-    <Popover open={open} onOpenChange={setOpen}>
-      <PopoverTrigger asChild>
-        <button className="w-28 flex items-center justify-center gap-1.5 bg-background border border-border rounded-lg px-3 py-2 text-sm text-foreground hover:bg-accent transition-colors">
-          <Clock size={14} className="text-muted-foreground shrink-0" />
-          {value || <span className="text-muted-foreground/60">—</span>}
-        </button>
-      </PopoverTrigger>
-      <PopoverContent className="w-auto p-0" align="start">
-        <div className="p-4 sm:p-6">
-          <div className="flex items-center justify-center gap-1 mb-5">
-            <button
-              onClick={() => setMode('hour')}
-              className={`text-4xl font-light tabular-nums px-2 py-0.5 rounded-lg transition-colors ${
-                mode === 'hour' ? 'text-foreground' : 'text-muted-foreground/40'
-              }`}
-            >
-              {String(selHour).padStart(2, '0')}
-            </button>
-            <span className={`text-4xl font-light ${mode === 'hour' ? 'text-foreground' : 'text-muted-foreground/40'}`}>:</span>
-            <button
-              onClick={() => setMode('minute')}
-              className={`text-4xl font-light tabular-nums px-2 py-0.5 rounded-lg transition-colors ${
-                mode === 'minute' ? 'text-foreground' : 'text-muted-foreground/40'
-              }`}
-            >
-              {String(selMinute).padStart(2, '0')}
-            </button>
-            <div className="flex flex-col gap-0.5 ml-2">
-              <button
-                onClick={() => setSelPeriod('AM')}
-                className={`text-[10px] font-semibold px-1.5 py-0.5 rounded leading-none transition-colors ${
-                  selPeriod === 'AM' ? 'text-foreground bg-muted' : 'text-muted-foreground/40 hover:text-muted-foreground'
-                }`}
-              >
-                AM
-              </button>
-              <button
-                onClick={() => setSelPeriod('PM')}
-                className={`text-[10px] font-semibold px-1.5 py-0.5 rounded leading-none transition-colors ${
-                  selPeriod === 'PM' ? 'text-foreground bg-muted' : 'text-muted-foreground/40 hover:text-muted-foreground'
-                }`}
-              >
-                PM
-              </button>
-            </div>
-          </div>
-
-          <svg width={S} height={S} viewBox={`0 0 ${S} ${S}`} className="block mx-auto select-none">
-            <circle cx={C} cy={C} r={R} className="fill-muted/20" />
-            {p && (
-              <line x1={C} y1={C} x2={p.x} y2={p.y}
-                className="stroke-primary" strokeWidth={2.5} strokeLinecap="round" />
-            )}
-            <circle cx={C} cy={C} r={4} className="fill-primary" />
-
-            {items.map((val, i) => {
-              const pos = coords(i);
-              const isSel = val === selectedValue;
-              return (
-                <g key={val} onClick={() => pick(val)} className="cursor-pointer">
-                  {isSel && <circle cx={pos.x} cy={pos.y} r={22} className="fill-primary" />}
-                  {!isSel && <circle cx={pos.x} cy={pos.y} r={22} fill="transparent" className="hover:fill-accent/50" />}
-                  <text x={pos.x} y={pos.y} textAnchor="middle" dominantBaseline="central"
-                    className={`text-sm select-none ${isSel ? 'fill-primary-foreground font-medium' : 'fill-foreground'}`}>
-                    {String(val).padStart(2, '0')}
-                  </text>
-                </g>
-              );
-            })}
-          </svg>
-        </div>
-      </PopoverContent>
-    </Popover>
-  );
-}
 
 export default function TaskDetailPage() {
   const { id } = useParams<{ id: string }>();
@@ -149,6 +30,7 @@ export default function TaskDetailPage() {
   const [estimatedMinutes, setEstimatedMinutes] = useState<number | null>(null);
   const [saving, setSaving] = useState(false);
   const [showProperties, setShowProperties] = useState(true);
+  const { formatDateTime } = useTimeFormat();
 
   const { data: task, isLoading, isError, refetch } = useQuery({
     queryKey: ['task', id],
@@ -364,56 +246,17 @@ export default function TaskDetailPage() {
                 <div className="sm:col-span-2">
                   <label htmlFor="task-dueDate" className="text-xs font-medium text-muted-foreground mb-1.5 block">{t('taskDetail.dueDateLabel')}</label>
                   <div className="flex gap-2">
-                    <Popover>
-                      <PopoverTrigger asChild>
-                        <button id="task-dueDate" className="flex-1 min-w-0 flex items-center gap-2 bg-background border border-border rounded-lg px-3 py-2 text-sm text-foreground hover:bg-accent transition-colors">
-                          <CalendarIcon size={14} className="text-muted-foreground shrink-0" />
-                          {dueDate ? format(new Date(dueDate), 'MMM d, yyyy') : <span className="text-muted-foreground/60">Pick a date</span>}
-                        </button>
-                      </PopoverTrigger>
-                      <PopoverContent className="w-[296px] p-0 overflow-hidden" align="start">
-                        <div className="bg-primary px-4 pt-5 pb-4">
-                          <div className="text-primary-foreground/80 text-xs font-medium uppercase tracking-widest">
-                            {dueDate ? format(new Date(dueDate), 'iii') : 'SELECT'}
-                          </div>
-                          <div className="text-primary-foreground text-2xl font-normal leading-tight mt-0.5">
-                            {dueDate ? format(new Date(dueDate), 'MMM d, yyyy') : 'Pick a date'}
-                          </div>
-                        </div>
-                        <div className="p-4">
-                          <DayPicker
-                            mode="single"
-                            selected={dueDate ? new Date(dueDate) : undefined}
-                            onSelect={(date) => setDueDate(date ? format(date, 'yyyy-MM-dd') : '')}
-                            formatters={{
-                              formatWeekdayName: (date: Date) =>
-                                ['S','M','T','W','T','F','S'][date.getDay()],
-                            }}
-                            classNames={{
-                              root: "bg-background",
-                              months: "relative",
-                              month_caption: "flex items-center justify-center h-8 text-sm font-medium text-foreground",
-                              caption_label: "text-sm font-medium",
-                              nav: "absolute inset-x-0 top-0 flex items-center justify-between px-0.5",
-                              button_previous: "size-7 flex items-center justify-center rounded-full hover:bg-accent text-muted-foreground transition-colors",
-                              button_next: "size-7 flex items-center justify-center rounded-full hover:bg-accent text-muted-foreground transition-colors",
-                              chevron: "size-3.5",
-                              table: "w-full border-collapse mt-2",
-                              weekdays: "flex",
-                              weekday: "size-9 flex items-center justify-center text-xs text-muted-foreground font-normal",
-                              week: "flex",
-                              day: "flex items-center justify-center p-0",
-                              day_button: "size-9 rounded-full text-sm hover:bg-accent transition-colors",
-                              selected: "bg-primary text-primary-foreground hover:bg-primary",
-                              today: "border border-primary",
-                              outside: "text-muted-foreground/30",
-                              disabled: "text-muted-foreground/20",
-                            }}
-                          />
-                        </div>
-                      </PopoverContent>
-                    </Popover>
-                    <M3TimePicker value={dueTime} onChange={setDueTime} />
+                    <DatePicker
+                      value={dueDate}
+                      onChange={setDueDate}
+                      className="flex-1 min-w-0 bg-background"
+                      placeholder={t('taskDetail.pickADate', 'Pick a date')}
+                    />
+                    <TimePicker
+                      value={dueTime}
+                      onChange={setDueTime}
+                      className="w-32 shrink-0 bg-background"
+                    />
                   </div>
                 </div>
                 <div>
@@ -453,7 +296,7 @@ export default function TaskDetailPage() {
                 <ul className="space-y-1">
                   {aiSuggestions.map((s, i) => (
                     <li key={i} className="text-xs text-muted-foreground flex items-start gap-2">
-                      <span className="text-primary mt-0.5">•</span>
+                      <span className="text-primary mt-0.5">â€¢</span>
                       {s}
                     </li>
                   ))}
@@ -470,7 +313,7 @@ export default function TaskDetailPage() {
                 <div className="space-y-1">
                   {activityLog.map((log, i) => (
                     <div key={i} className="flex items-center gap-3 text-xs text-muted-foreground">
-                      <span className="tabular-nums">{format(new Date(log.time), 'MMM d, HH:mm')}</span>
+                      <span className="tabular-nums">{formatDateTime(new Date(log.time))}</span>
                       <span>{log.event}</span>
                     </div>
                   ))}

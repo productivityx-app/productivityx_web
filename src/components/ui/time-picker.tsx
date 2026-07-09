@@ -1,55 +1,44 @@
 import * as React from "react"
 import flatpickr from "flatpickr"
 import "flatpickr/dist/themes/dark.css"
-import { format, addDays, addWeeks, startOfWeek, isToday, isTomorrow, differenceInDays } from "date-fns"
-import { CalendarIcon, X } from "lucide-react"
+import { Clock, X } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { useTranslation } from "react-i18next"
 
-export { TimePicker } from "@/components/ui/time-picker"
-
-interface DatePickerProps {
+interface TimePickerProps {
   value?: string
-  onChange: (date: string) => void
+  onChange: (time: string) => void
   placeholder?: string
   disabled?: boolean
   className?: string
-  fromYear?: number
-  toYear?: number
+  use24Hour?: boolean
   showQuickActions?: boolean
 }
 
-function getRelativeLabel(date: Date): string | null {
-  if (isToday(date)) return "Today"
-  if (isTomorrow(date)) return "Tomorrow"
-  const days = differenceInDays(date, new Date())
-  if (days > 0 && days <= 7) return `In ${days} days`
-  if (days < 0 && days >= -7) return `${Math.abs(days)} days ago`
-  return null
+function formatDisplay(value: string, use24: boolean): string {
+  const [h, m] = value.split(":").map(Number)
+  if (isNaN(h) || isNaN(m)) return value
+  if (use24) return `${h.toString().padStart(2, "0")}:${m.toString().padStart(2, "0")}`
+  const period = h >= 12 ? "PM" : "AM"
+  const h12 = h % 12 || 12
+  return `${h12}:${m.toString().padStart(2, "0")} ${period}`
 }
 
-export function DatePicker({
+export function TimePicker({
   value,
   onChange,
   placeholder,
   disabled,
   className,
-  fromYear,
-  toYear,
-  showQuickActions,
-}: DatePickerProps) {
+  use24Hour = true,
+  showQuickActions = true,
+}: TimePickerProps) {
   const { t } = useTranslation()
   const inputRef = React.useRef<HTMLInputElement>(null)
   const fpRef = React.useRef<flatpickr.Instance | null>(null)
   const quickActionsInjectedRef = React.useRef(false)
-  const resolvedShowQuickActions = showQuickActions ?? !(fromYear && toYear)
 
-  const validDate = value ? new Date(value + "T00:00:00") : undefined
-  const displayLabel = validDate
-    ? getRelativeLabel(validDate)
-      ? getRelativeLabel(validDate)
-      : format(validDate, "MMM d, yyyy")
-    : undefined
+  const displayLabel = value ? formatDisplay(value, use24Hour) : ""
 
   const openPicker = () => {
     if (!disabled) inputRef.current?.focus()
@@ -59,66 +48,47 @@ export function DatePicker({
     if (!inputRef.current || fpRef.current) return
 
     const fp = flatpickr(inputRef.current, {
-      dateFormat: "Y-m-d",
+      enableTime: true,
+      noCalendar: true,
+      dateFormat: "H:i",
+      time_24hr: true,
       defaultDate: value || undefined,
-      minDate: fromYear ? new Date(fromYear, 0, 1) : undefined,
-      maxDate: toYear ? new Date(toYear, 11, 31) : undefined,
       disableMobile: true,
       clickOpens: true,
       onChange: (selectedDates: Date[]) => {
         if (selectedDates[0]) {
-          onChange(format(selectedDates[0], "yyyy-MM-dd"))
+          const d = selectedDates[0]
+          const h = d.getHours().toString().padStart(2, "0")
+          const m = d.getMinutes().toString().padStart(2, "0")
+          onChange(`${h}:${m}`)
           fp.close()
         }
       },
       onReady: (_a, _b, instance) => {
-        if (!resolvedShowQuickActions || quickActionsInjectedRef.current) return
+        if (!showQuickActions || quickActionsInjectedRef.current) return
         quickActionsInjectedRef.current = true
-
-        const actions = [
-          { label: t("common.today"), action: "today" },
-          { label: t("common.tomorrow", "Tomorrow"), action: "tomorrow" },
-          { label: "Weekend", action: "weekend" },
-          { label: "Next Week", action: "next-week" },
-        ]
 
         const bar = document.createElement("div")
         bar.className =
           "flex items-center gap-1 border-b border-[hsl(var(--border))] p-2"
-        bar.innerHTML = actions
-          .map(
-            (a) =>
-              `<button type="button" data-fp-action="${a.action}" class="flex-1 rounded-lg px-2.5 py-1.5 text-xs font-medium text-[hsl(var(--foreground))] bg-[hsl(var(--accent))] hover:bg-[hsl(var(--muted))] transition-colors cursor-pointer">${a.label}</button>`
-          )
-          .join("")
+        bar.innerHTML = `
+          <button type="button" data-fp-action="now" class="flex-1 rounded-lg px-2.5 py-1.5 text-xs font-medium text-[hsl(var(--foreground))] bg-[hsl(var(--accent))] hover:bg-[hsl(var(--muted))] transition-colors cursor-pointer">${t("common.now", "Now")}</button>
+          <button type="button" data-fp-action="clear" class="rounded-lg px-2.5 py-1.5 text-xs font-medium text-[hsl(var(--muted-foreground))] hover:text-[hsl(var(--destructive))] hover:bg-[hsl(var(--destructive)-/10)] transition-colors cursor-pointer">${t("common.clear")}</button>
+        `
 
         bar.addEventListener("click", (e) => {
           const target = (e.target as HTMLElement).closest("[data-fp-action]")
           if (!target) return
           const act = target.getAttribute("data-fp-action")
-          let d: Date | undefined
-          switch (act) {
-            case "today":
-              d = new Date()
-              break
-            case "tomorrow":
-              d = addDays(new Date(), 1)
-              break
-            case "weekend": {
-              const nextSat = addDays(
-                new Date(),
-                (6 - new Date().getDay() + 7) % 7 || 7
-              )
-              d = nextSat
-              break
-            }
-            case "next-week": {
-              d = addWeeks(startOfWeek(new Date(), { weekStartsOn: 1 }), 1)
-              break
-            }
-          }
-          if (d) {
-            onChange(format(d, "yyyy-MM-dd"))
+          if (act === "now") {
+            const now = new Date()
+            const h = now.getHours().toString().padStart(2, "0")
+            const m = now.getMinutes().toString().padStart(2, "0")
+            onChange(`${h}:${m}`)
+            instance.close()
+          } else if (act === "clear") {
+            onChange("")
+            instance.clear()
             instance.close()
           }
         })
@@ -145,7 +115,7 @@ export function DatePicker({
   React.useEffect(() => {
     if (!fpRef.current) return
     if (value) {
-      fpRef.current.setDate(value, false)
+      fpRef.current.setDate(new Date(`2000-01-01T${value}:00`), false)
     } else {
       fpRef.current.clear(false)
     }
@@ -165,19 +135,19 @@ export function DatePicker({
         onClick={openPicker}
         disabled={disabled}
         className={cn(
-          "w-full cursor-pointer bg-card border border-border rounded-xl py-2 pl-9 pr-8 text-sm text-left",
+          "w-full cursor-pointer bg-card border border-border rounded-xl py-2 pl-9 pr-8 text-sm text-left tabular-nums",
           "outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:border-ring",
           "transition-colors hover:border-muted-foreground/30",
           disabled && "opacity-50 cursor-not-allowed hover:border-border",
-          !validDate && "text-muted-foreground"
+          !value && "text-muted-foreground"
         )}
       >
-        <CalendarIcon className="absolute left-2.5 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground pointer-events-none" />
+        <Clock className="absolute left-2.5 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground pointer-events-none" />
         <span className="truncate">
-          {displayLabel || placeholder || t("common.selectDate")}
+          {displayLabel || placeholder || t("common.selectTime")}
         </span>
       </button>
-      {validDate && !disabled && (
+      {value && !disabled && (
         <span
           role="button"
           tabIndex={-1}
@@ -195,3 +165,5 @@ export function DatePicker({
     </div>
   )
 }
+
+export { TimePicker as RadialTimePicker }

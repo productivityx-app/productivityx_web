@@ -10,7 +10,7 @@ import { devicesApi } from '../api/devices';
 import { authApi } from '../api/auth';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
-import { TimePicker } from '@/components/ui/date-picker';
+import { TimePicker } from '@/components/ui/time-picker';
 import { Separator } from '@/components/ui/separator';
 import AnimatedButton from '@/components/design-system/AnimatedButton';
 import { useNavigate } from 'react-router-dom';

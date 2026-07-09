@@ -4,6 +4,7 @@ import { format, parseISO } from 'date-fns';
 import { cn } from '@/lib/utils';
 import { CalendarEvent } from '@/types';
 import { useTranslation } from 'react-i18next';
+import { useTimeFormat } from '@/hooks/use-time-format';
 
 interface Props {
   event: CalendarEvent;
@@ -27,6 +28,7 @@ const CARD_COLORS: Record<string, string> = {
 
 export default function EventCard({ event, compact, onClick, onEdit, onDelete, style, className }: Props) {
   const { t } = useTranslation();
+  const { formatTime } = useTimeFormat();
   const [hover, setHover] = useState(false);
   const colorKey = event.color || '#6366F1';
   const colorClasses = CARD_COLORS[colorKey] || 'border-l-indigo-500 bg-indigo-500/5';
@@ -68,7 +70,7 @@ export default function EventCard({ event, compact, onClick, onEdit, onDelete, s
       </div>
       {!compact && !event.allDay && (
         <p className="text-xs text-muted-foreground mt-0.5">
-          {format(start, 'h:mm a')} – {format(end, 'h:mm a')}
+          {formatTime(start)} \u2013 {formatTime(end)}
         </p>
       )}
       {event.allDay && <p className="text-xs text-muted-foreground mt-0.5">{t('calendar.allDay')}</p>}

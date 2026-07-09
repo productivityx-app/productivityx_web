@@ -3,6 +3,7 @@ import { format, parseISO, startOfMonth, endOfMonth, startOfWeek, endOfWeek, eac
 import { motion } from 'framer-motion';
 import { cn } from '@/lib/utils';
 import { CalendarEvent } from '@/types';
+import { useTimeFormat } from '@/hooks/use-time-format';
 
 interface Props {
   currentMonth: Date;
@@ -13,6 +14,7 @@ interface Props {
 }
 
 export default function MonthView({ currentMonth, events, selectedDate, onDateSelect, onEventClick }: Props) {
+  const { formatTime } = useTimeFormat();
   const days = useMemo(() => {
     const ms = startOfMonth(currentMonth);
     const me = endOfMonth(currentMonth);
@@ -79,7 +81,7 @@ export default function MonthView({ currentMonth, events, selectedDate, onDateSe
                       event.color ? '' : 'bg-primary/10 text-primary/80',
                     )}
                   >
-                    {event.allDay ? event.title : `${format(parseISO(event.startAt), 'HH:mm')} ${event.title}`}
+                    {event.allDay ? event.title : `${formatTime(parseISO(event.startAt))} ${event.title}`}
                   </div>
                 ))}
                 {dayEvents.length > 3 && (

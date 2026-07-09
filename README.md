@@ -8,7 +8,7 @@ Built with React 19, TypeScript, Vite 6, Tailwind CSS v4, and shadcn/ui.
 
 - **Notes** — Markdown editor with live preview, board/grid/list views, tags, and auto-save
 - **Tasks** — Kanban board with drag-and-drop, list view, calendar view, subtasks, and bulk actions
-- **Calendar** — Month, week, day, and agenda views with event management
+- **Calendar** — Month, week, day, and agenda views with event management, date-range picker, and interactive date/time pickers
 - **Pomodoro Timer** — Configurable focus/break sessions, stats, heatmaps, and achievements
 - **AI Assistant** — Streaming chat with conversation history and context-aware suggestions
 - **Unified Search** — Full-text search across notes, tasks, events, and conversations
@@ -25,6 +25,7 @@ Built with React 19, TypeScript, Vite 6, Tailwind CSS v4, and shadcn/ui.
 | Bundler | Vite 6 |
 | Styling | Tailwind CSS v4 |
 | UI Primitives | Radix UI + shadcn/ui |
+| Date/Time Picker | Flatpickr |
 | State | Zustand |
 | Server State | TanStack React Query |
 | Routing | React Router v7 |

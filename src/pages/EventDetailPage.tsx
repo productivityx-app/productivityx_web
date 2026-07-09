@@ -7,11 +7,13 @@ import { format, parseISO } from 'date-fns';
 import { eventsApi } from '@/api/events';
 import { useTranslation } from 'react-i18next';
 import { getDateFnsLocale } from '@/i18n/dateLocales';
+import { useTimeFormat } from '@/hooks/use-time-format';
 import ConfirmDialog from '@/components/common/ConfirmDialog';
 import EventModal from '@/components/calendar/EventModal';
 
 export default function EventDetailPage() {
   const { t } = useTranslation();
+  const { formatTime, formatDateTime } = useTimeFormat();
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const qc = useQueryClient();
@@ -68,7 +70,7 @@ export default function EventDetailPage() {
                 <span>
                   {format(start, 'EEEE, MMMM d, yyyy', { locale: getDateFnsLocale() })}
                   <br />
-                  {format(start, 'h:mm a', { locale: getDateFnsLocale() })} – {format(end, 'h:mm a', { locale: getDateFnsLocale() })}
+                  {formatTime(start)} \u2013 {formatTime(end)}
                 </span>
               )}
             </div>
@@ -97,7 +99,7 @@ export default function EventDetailPage() {
         </div>
 
         <div className="text-xs text-muted-foreground pt-2 border-t border-border">
-          {t('eventDetail.created')} {format(parseISO(event.createdAt), 'MMM d, yyyy HH:mm')}
+          {t('eventDetail.created')} {formatDateTime(parseISO(event.createdAt))}
         </div>
       </div>
 

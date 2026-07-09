@@ -3,9 +3,10 @@ import { Link, useNavigate } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
-import { Loader2 } from 'lucide-react';
+import { Loader2, Cake } from 'lucide-react';
 import { toast } from 'sonner';
 import { authApi } from '../api/auth';
+import { differenceInYears } from 'date-fns';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useTranslation } from 'react-i18next';
 import AuthLayout from '../components/auth/AuthLayout';
@@ -34,6 +35,13 @@ const schema = z.object({
   gender: z.enum(['MALE', 'FEMALE']).optional(),
 }).refine((d) => d.password === d.confirmPassword, { message: "Passwords don't match", path: ['confirmPassword'] });
 type FormData = z.infer<typeof schema>;
+
+function AgeDisplay({ birthDate }: { birthDate: string }) {
+  if (!birthDate) return null;
+  const age = differenceInYears(new Date(), new Date(birthDate));
+  if (age < 0 || age > 120) return null;
+  return <p className="text-[11px] text-primary/70 mt-1 flex items-center gap-1"><Cake size={10} /> You'll be {age} years old</p>;
+}
 
 export default function RegisterPage() {
   const navigate = useNavigate();
@@ -72,10 +80,11 @@ export default function RegisterPage() {
         </div>
         <AuthInput label={t('auth.register.username')} placeholder={t('auth.register.usernamePlaceholder')} error={errors.username?.message} {...register('username')} />
         <AuthInput label={t('auth.register.email')} type="email" placeholder={t('auth.register.emailPlaceholder')} error={errors.email?.message} {...register('email')} />
-        <div className="grid grid-cols-2 gap-3">
+        <div className="grid-cols-2 gap-3 grid">
           <div className="space-y-1.5">
             <label className="text-xs font-medium text-muted-foreground">{t('auth.register.birthDate')}</label>
             <DatePicker value={watch('birthDate')} onChange={(d) => setValue('birthDate', d, { shouldValidate: true })} fromYear={1920} toYear={new Date().getFullYear()} />
+            <AgeDisplay birthDate={watch('birthDate')} />
             {errors.birthDate?.message && <p className="text-[11px] text-destructive">{errors.birthDate.message}</p>}
           </div>
           <AuthInput label={t('auth.register.phoneOptional')} type="tel" placeholder={t('auth.register.phonePlaceholder')} {...register('phone')} />

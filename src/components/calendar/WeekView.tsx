@@ -3,6 +3,7 @@ import { format, parseISO, startOfWeek, addDays, isSameDay, isToday, differenceI
 import { motion } from 'framer-motion';
 import { cn } from '@/lib/utils';
 import { CalendarEvent } from '@/types';
+import { useTimeFormat } from '@/hooks/use-time-format';
 import EventCard from './EventCard';
 
 interface Props {
@@ -52,6 +53,7 @@ function computeOverlap(events: CalendarEvent[]): OverlapGroup {
 }
 
 export default function WeekView({ currentDate, events, onEventClick, onSlotClick }: Props) {
+  const { formatTime } = useTimeFormat();
   const weekStart = startOfWeek(currentDate, { weekStartsOn: 0 });
   const days = Array.from({ length: 7 }, (_, i) => addDays(weekStart, i));
 
@@ -108,7 +110,7 @@ export default function WeekView({ currentDate, events, onEventClick, onSlotClic
           <div className="w-14 flex-shrink-0 relative">
             {HOURS.map((hour) => (
               <div key={hour} className="absolute text-[10px] text-muted-foreground pr-2 text-right" style={{ top: hour * HOUR_HEIGHT - 6, right: 4 }}>
-                {hour === 0 ? '' : format(new Date().setHours(hour, 0, 0, 0), 'ha')}
+                {hour === 0 ? '' : formatTime(new Date().setHours(hour, 0, 0, 0))}
               </div>
             ))}
           </div>

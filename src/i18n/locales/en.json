@@ -39,7 +39,12 @@
     "selectDate": "Select date",
     "selectTime": "Select time",
     "hour": "Hour",
-    "minute": "Minute"
+    "minute": "Minute",
+    "tomorrow": "Tomorrow",
+    "now": "Now",
+    "themeLight": "Light",
+    "themeDark": "Dark",
+    "themeSystem": "System"
   },
   "nav": {
     "dashboard": "Dashboard",
@@ -85,7 +90,7 @@
       "emailLabel": "Email or Username",
       "passwordLabel": "Password",
       "emailPlaceholder": "you@example.com",
-      "passwordPlaceholder": "••••••••",
+      "passwordPlaceholder": "â€¢â€¢â€¢â€¢â€¢â€¢â€¢â€¢",
       "emailRequired": "Email or username required",
       "passwordRequired": "Password required",
       "forgotPassword": "Forgot password?",
@@ -118,9 +123,9 @@
       "female": "Female",
       "selectGender": "Select",
       "password": "Password",
-      "passwordPlaceholder": "••••••••",
+      "passwordPlaceholder": "â€¢â€¢â€¢â€¢â€¢â€¢â€¢â€¢",
       "confirmPassword": "Confirm password",
-      "confirmPasswordPlaceholder": "••••••••",
+      "confirmPasswordPlaceholder": "â€¢â€¢â€¢â€¢â€¢â€¢â€¢â€¢",
       "createAccountButton": "Create account",
       "hasAccount": "Already have an account?",
       "signIn": "Sign in",
@@ -238,12 +243,12 @@
     "aiInsight": "AI Insight",
     "aiTip": {
       "tasksDue": "You have {{count}} tasks due today",
-      "noTasksDue": "No tasks due today — take a breather!",
+      "noTasksDue": "No tasks due today â€” take a breather!",
       "focusSession": "Start a focus session to boost your productivity",
       "reviewNotes": "Review your {{count}} recent notes for inspiration",
       "createNote": "Create a note to capture your thoughts",
       "overdueTasks": "You have {{count}} overdue tasks waiting",
-      "stayOnTrack": "You're on track — keep up the great work!"
+      "stayOnTrack": "You're on track â€” keep up the great work!"
     },
     "newEvent": "New Event",
     "viewTrash": "View Trash",
@@ -370,6 +375,7 @@
     "statusLabel": "Status",
     "priorityLabel": "Priority",
     "dueDateLabel": "Due date",
+    "pickADate": "Pick a date",
     "estimatedMinutesLabel": "Estimated (minutes)",
     "subtasks": "Subtasks",
     "addSubtaskPlaceholder": "Add subtask...",
@@ -442,6 +448,7 @@
     "failedToCreate": "Failed to create event",
     "failedToUpdate": "Failed to update event",
     "titleRequired": "Title is required",
+    "endTimeBeforeStart": "End time must be after start time",
     "eventDeleted": "Event deleted",
     "event": "Event",
     "month": "Month",
@@ -522,7 +529,7 @@
     "soundCoffee": "Coffee Shop",
     "soundWhiteNoise": "White Noise",
     "soundLoFi": "Lo-Fi",
-    "focusShortcuts": "Space: pause/resume · Esc: exit · S: skip",
+    "focusShortcuts": "Space: pause/resume Â· Esc: exit Â· S: skip",
     "exitFocus": "Exit Focus",
     "breakTime": "Break",
     "pauseTime": "Pause",
@@ -565,7 +572,7 @@
     "focusMinutesToday": "Focus minutes today",
     "sessionsTotal": "Sessions total",
     "totalFocusHours": "Total focus hours",
-    "focusMinutesLast7": "Focus minutes – last 7 days",
+    "focusMinutesLast7": "Focus minutes â€“ last 7 days",
     "focusTrend": "Focus Trend",
     "sessionBreakdown": "Session Breakdown",
     "recentSessions": "Recent sessions",
@@ -581,8 +588,8 @@
     "noConversationsYet": "No conversations yet",
     "sendAMessage": "Send a message to start",
     "placeholder": "Message AI Assistant...",
-    "enterToSend": "Enter to send · Shift+Enter for new line",
-    "aiDescription": "Your intelligent productivity companion. Ask anything — manage tasks, summarize notes, or just chat.",
+    "enterToSend": "Enter to send Â· Shift+Enter for new line",
+    "aiDescription": "Your intelligent productivity companion. Ask anything â€” manage tasks, summarize notes, or just chat.",
     "startConversation": "Start a conversation",
     "aiError": "AI error: {{message}}",
     "newConversation": "New conversation",
@@ -814,18 +821,18 @@
     "passwordTooShort": "Password must be at least 8 characters",
     "languageOptions": {
       "en": "English",
-      "fr": "Français",
-      "ar": "العربية",
-      "es": "Español",
+      "fr": "FranÃ§ais",
+      "ar": "Ø§Ù„Ø¹Ø±Ø¨ÙŠØ©",
+      "es": "EspaÃ±ol",
       "de": "Deutsch",
-      "ko": "한국어",
-      "ja": "日本語",
-      "pt": "Português",
-      "tr": "Türkçe",
-      "zh-TW": "繁體中文",
-      "hi": "हिन्दी",
+      "ko": "í•œêµ­ì–´",
+      "ja": "æ—¥æœ¬èªž",
+      "pt": "PortuguÃªs",
+      "tr": "TÃ¼rkÃ§e",
+      "zh-TW": "ç¹é«”ä¸­æ–‡",
+      "hi": "à¤¹à¤¿à¤¨à¥à¤¦à¥€",
       "id": "Bahasa Indonesia",
-      "vi": "Tiếng Việt",
+      "vi": "Tiáº¿ng Viá»‡t",
       "it": "Italiano",
       "nl": "Nederlands"
     }
@@ -857,7 +864,7 @@
   "mainLayout": {
     "offline": "Offline",
     "logout": "Sign out",
-    "searchTooltip": "Search (⌘K)"
+    "searchTooltip": "Search (âŒ˜K)"
   },
   "errorState": {
     "somethingWentWrong": "Something went wrong",
@@ -895,7 +902,7 @@
     "confirm": "Confirm"
   },
   "notFound": {
-    "title": "404 — Not Found",
+    "title": "404 â€” Not Found",
     "description": "The page you're looking for doesn't exist."
   },
   "pomodoroSessionTypes": {

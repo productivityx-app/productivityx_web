@@ -3,7 +3,9 @@ import { useTranslation } from 'react-i18next';
 import { cn } from '@/lib/utils';
 import { Task, TaskStatus, TaskPriority } from '@/types';
 import { format } from 'date-fns';
-import { DatePicker, TimePicker } from '@/components/ui/date-picker';
+import { useTimeFormat } from '@/hooks/use-time-format';
+import { DatePicker } from '@/components/ui/date-picker';
+import { TimePicker } from '@/components/ui/time-picker';
 
 interface Props {
   task: Task;
@@ -27,6 +29,7 @@ const PRIORITIES: { value: TaskPriority; label: string; icon: string }[] = [
 
 export default function TaskProperties({ task, onUpdate }: Props) {
   const { t } = useTranslation();
+  const { formatDateTime } = useTimeFormat();
 
   const Section = ({ label, htmlFor, children }: { label: string; htmlFor?: string; children: React.ReactNode }) => (
     <div className="space-y-1.5">
@@ -105,13 +108,13 @@ export default function TaskProperties({ task, onUpdate }: Props) {
 
       <Section label={t('taskDetail.created')}>
         <p className="text-sm text-muted-foreground">
-          {format(new Date(task.createdAt), 'MMM d, yyyy HH:mm')}
+          {formatDateTime(new Date(task.createdAt))}
         </p>
       </Section>
 
       <Section label={t('taskDetail.updated')}>
         <p className="text-sm text-muted-foreground">
-          {format(new Date(task.updatedAt), 'MMM d, yyyy HH:mm')}
+          {formatDateTime(new Date(task.updatedAt))}
         </p>
       </Section>
     </div>

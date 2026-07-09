@@ -4,6 +4,7 @@ import { format, parseISO, isBefore, isAfter, addDays, formatDistanceToNowStrict
 import { CalendarEvent } from '@/types';
 import { cn } from '@/lib/utils';
 import { useTranslation } from 'react-i18next';
+import { useTimeFormat } from '@/hooks/use-time-format';
 
 interface Props {
   events: CalendarEvent[];
@@ -11,6 +12,7 @@ interface Props {
 
 export default function UpcomingEvents({ events }: Props) {
   const { t } = useTranslation();
+  const { formatTime } = useTimeFormat();
   const navigate = useNavigate();
 
   const upcoming = useMemo(() => {
@@ -39,7 +41,7 @@ export default function UpcomingEvents({ events }: Props) {
             <div className="flex-1 min-w-0">
               <p className="text-xs font-medium text-foreground truncate">{event.title}</p>
               <p className="text-[10px] text-muted-foreground">
-                {event.allDay ? t('calendar.allDay') : format(start, 'h:mm a')}
+                {event.allDay ? t('calendar.allDay') : formatTime(start)}
                 {' · '}
                 {formatDistanceToNowStrict(start, { addSuffix: true })}
               </p>

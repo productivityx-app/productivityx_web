@@ -8,7 +8,9 @@ import { eventsApi } from '@/api/events';
 import { CalendarEvent } from '@/types';
 import { useTranslation } from 'react-i18next';
 import { cn } from '@/lib/utils';
-import { DatePicker, TimePicker } from '@/components/ui/date-picker';
+import { DatePicker } from '@/components/ui/date-picker';
+import { TimePicker } from '@/components/ui/time-picker';
+import { DateRangePicker } from '@/components/ui/date-range-picker';
 
 const EVENT_COLORS = ['#6366F1', '#8B5CF6', '#EC4899', '#EF4444', '#F59E0B', '#10B981', '#06B6D4'];
 
@@ -50,6 +52,9 @@ export default function EventModal({ open, onClose, event, defaultDate, defaultS
   const [startTime, setStartTime] = useState('09:00');
   const [endTime, setEndTime] = useState('10:00');
   const [allDay, setAllDay] = useState(false);
+  const [multiDay, setMultiDay] = useState(false);
+  const [rangeStart, setRangeStart] = useState('');
+  const [rangeEnd, setRangeEnd] = useState('');
   const [color, setColor] = useState(EVENT_COLORS[0]);
   const [recurrence, setRecurrence] = useState('');
   const [reminder, setReminder] = useState(0);
@@ -63,6 +68,11 @@ export default function EventModal({ open, onClose, event, defaultDate, defaultS
       setStartTime(format(new Date(event.startAt), 'HH:mm'));
       setEndTime(format(new Date(event.endAt), 'HH:mm'));
       setAllDay(event.allDay);
+      setMultiDay(event.allDay && event.startAt !== event.endAt
+        ? format(new Date(event.startAt), 'yyyy-MM-dd') !== format(new Date(event.endAt), 'yyyy-MM-dd')
+        : false);
+      setRangeStart(format(new Date(event.startAt), 'yyyy-MM-dd'));
+      setRangeEnd(format(new Date(event.endAt), 'yyyy-MM-dd'));
       setColor(event.color || EVENT_COLORS[0]);
       setRecurrence(event.recurrenceRule || '');
       setReminder(event.reminderMinutes ?? 0);
@@ -74,6 +84,9 @@ export default function EventModal({ open, onClose, event, defaultDate, defaultS
       setStartTime(defaultStartTime || '09:00');
       setEndTime(defaultEndTime || '10:00');
       setAllDay(false);
+      setMultiDay(false);
+      setRangeStart('');
+      setRangeEnd('');
       setColor(EVENT_COLORS[0]);
       setRecurrence('');
       setReminder(0);
@@ -86,8 +99,12 @@ export default function EventModal({ open, onClose, event, defaultDate, defaultS
     mutationFn: () => eventsApi.create({
       title, description: description || null, location: location || null,
       color, allDay, recurrenceRule: recurrence || null, reminderMinutes: reminder || null,
-      startAt: allDay ? toInstant(date, '00:00') : toInstant(date, startTime),
-      endAt:   allDay ? toInstant(date, '23:59') : toInstant(date, endTime),
+      startAt: multiDay && rangeStart
+        ? (allDay ? toInstant(rangeStart, '00:00') : toInstant(rangeStart, startTime))
+        : (allDay ? toInstant(date, '00:00') : toInstant(date, startTime)),
+      endAt: multiDay && rangeEnd
+        ? (allDay ? toInstant(rangeEnd, '23:59') : toInstant(rangeEnd, endTime))
+        : (allDay ? toInstant(date, '23:59') : toInstant(date, endTime)),
     } as Partial<CalendarEvent>),
     onSuccess: () => { qc.invalidateQueries({ queryKey: ['events'] }); toast.success(t('calendar.createSuccess')); onClose(); },
     onError: () => toast.error(t('calendar.failedToCreate')),
@@ -97,8 +114,12 @@ export default function EventModal({ open, onClose, event, defaultDate, defaultS
     mutationFn: () => eventsApi.update(event!.id, {
       title, description: description || null, location: location || null,
       color, allDay, recurrenceRule: recurrence || null, reminderMinutes: reminder || null,
-      startAt: allDay ? toInstant(date, '00:00') : toInstant(date, startTime),
-      endAt:   allDay ? toInstant(date, '23:59') : toInstant(date, endTime),
+      startAt: multiDay && rangeStart
+        ? (allDay ? toInstant(rangeStart, '00:00') : toInstant(rangeStart, startTime))
+        : (allDay ? toInstant(date, '00:00') : toInstant(date, startTime)),
+      endAt: multiDay && rangeEnd
+        ? (allDay ? toInstant(rangeEnd, '23:59') : toInstant(rangeEnd, endTime))
+        : (allDay ? toInstant(date, '23:59') : toInstant(date, endTime)),
     } as Partial<CalendarEvent>),
     onSuccess: () => { qc.invalidateQueries({ queryKey: ['events'] }); qc.invalidateQueries({ queryKey: ['event', event!.id] }); toast.success(t('calendar.updateSuccess')); onClose(); },
     onError: () => toast.error(t('calendar.failedToUpdate')),
@@ -106,7 +127,28 @@ export default function EventModal({ open, onClose, event, defaultDate, defaultS
 
   const handleSubmit = () => {
     if (!title.trim()) { toast.error(t('calendar.titleRequired')); return; }
+    if (!allDay && startTime && endTime && endTime <= startTime) {
+      toast.error(t('calendar.endTimeBeforeStart', 'End time must be after start time'));
+      return;
+    }
     if (isEdit) updateMutation.mutate(); else createMutation.mutate();
+  };
+
+  const handleStartTimeChange = (newStart: string) => {
+    setStartTime(newStart);
+    if (endTime <= newStart) {
+      const [h, m] = newStart.split(':').map(Number);
+      const total = h * 60 + m + 60;
+      const nh = Math.floor((total % (24 * 60)) / 60);
+      const nm = total % 60;
+      setEndTime(`${nh.toString().padStart(2, '0')}:${nm.toString().padStart(2, '0')}`);
+    }
+  };
+
+  const handleRangeChange = (start: string, end: string) => {
+    setRangeStart(start);
+    setRangeEnd(end);
+    if (start && end) setDate(start);
   };
 
   const isPending = createMutation.isPending || updateMutation.isPending;
@@ -155,26 +197,54 @@ export default function EventModal({ open, onClose, event, defaultDate, defaultS
               />
 
               <div className="flex items-center gap-2">
-                <DatePicker value={date} onChange={setDate} className="flex-1" />
-                {!allDay && (
+                {multiDay ? (
+                  <DateRangePicker
+                    start={rangeStart}
+                    end={rangeEnd}
+                    onChange={handleRangeChange}
+                    className="flex-1"
+                  />
+                ) : (
+                  <DatePicker value={date} onChange={setDate} className="flex-1" />
+                )}
+                {!allDay && !multiDay && (
                   <>
-                    <TimePicker value={startTime} onChange={setStartTime} className="flex-1" />
+                    <TimePicker value={startTime} onChange={handleStartTimeChange} className="flex-1" />
                     <span className="text-muted-foreground text-xs">–</span>
                     <TimePicker value={endTime} onChange={setEndTime} className="flex-1" />
                   </>
                 )}
+                {!allDay && multiDay && (
+                  <div className="flex flex-col gap-1.5 flex-1">
+                    <TimePicker value={startTime} onChange={handleStartTimeChange} placeholder="Start" />
+                    <TimePicker value={endTime} onChange={setEndTime} placeholder="End" />
+                  </div>
+                )}
               </div>
 
-              <label className="flex items-center gap-2 text-sm text-foreground cursor-pointer">
-                <input type="checkbox" checked={allDay} onChange={(e) => setAllDay(e.target.checked)} className="rounded" />
-                {t('calendar.allDayLabel')}
-              </label>
+              <div className="flex items-center gap-4 text-sm text-foreground">
+                <label className="flex items-center gap-2 cursor-pointer">
+                  <input type="checkbox" checked={allDay} onChange={(e) => setAllDay(e.target.checked)} className="rounded" />
+                  {t('calendar.allDayLabel')}
+                </label>
+                <label className="flex items-center gap-2 cursor-pointer">
+                  <input type="checkbox" checked={multiDay} onChange={(e) => setMultiDay(e.target.checked)} className="rounded" />
+                  {t('calendar.multiDay', 'Multi-day')}
+                </label>
+              </div>
 
               <div>
                 <p className="text-xs font-medium text-muted-foreground mb-2">{t('calendar.colorLabel')}</p>
                 <div className="flex gap-2">
                   {EVENT_COLORS.map((c) => (
-                    <button key={c} onClick={() => setColor(c)} className={cn('w-7 h-7 rounded-full border-2 transition-all', color === c ? 'border-foreground scale-110' : 'border-transparent')} style={{ backgroundColor: c }} />
+                    <motion.button
+                      key={c}
+                      whileHover={{ scale: 1.15 }}
+                      whileTap={{ scale: 0.9 }}
+                      onClick={() => setColor(c)}
+                      className={cn('w-7 h-7 rounded-full border-2 transition-all', color === c ? 'border-foreground scale-110' : 'border-transparent')}
+                      style={{ backgroundColor: c }}
+                    />
                   ))}
                 </div>
               </div>
