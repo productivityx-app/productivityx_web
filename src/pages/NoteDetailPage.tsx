@@ -18,6 +18,7 @@ import {
 import NoteSidebar from '@/components/notes/NoteSidebar';
 import ReadingProgress from '@/components/notes/ReadingProgress';
 import MarkdownEditor from '@/components/notes/markdown-editor';
+import type { Editor } from '@tiptap/core';
 import html2pdf from 'html2pdf.js';
 
 export default function NoteDetailPage() {
@@ -31,6 +32,7 @@ export default function NoteDetailPage() {
   const [saveStatus, setSaveStatus] = useState<'idle' | 'saving' | 'saved'>('idle');
   const [immersive, setImmersive] = useState(false);
   const [sidebarOpen, setSidebarOpen] = useState(true);
+  const editorRef = useRef<Editor | null>(null);
   const saveTimer = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
   const noteIdRef = useRef<string | null>(isNew ? null : id || null);
   const versionRef = useRef<number>(0);
@@ -107,7 +109,8 @@ export default function NoteDetailPage() {
   }, [content, title, t]);
 
   const exportPdf = useCallback(async () => {
-    if (!pdfRef.current) return;
+    if (!pdfRef.current || !editorRef.current) return;
+    const html = editorRef.current.getHTML();
     const opt = {
       margin: [10, 10],
       filename: `${title || 'untitled'}.pdf`,
@@ -115,13 +118,17 @@ export default function NoteDetailPage() {
       html2canvas: { scale: 2, useCORS: true, letterRendering: true },
       jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' },
     };
+    const titleHtml = title
+      ? `<div style="text-align:center;margin-bottom:15mm"><h1 style="font-size:24pt;font-weight:bold;margin:0;color:#1a1a1a">${title}</h1></div>`
+      : '';
+    pdfRef.current.innerHTML = titleHtml + html;
     try {
       await html2pdf().set(opt).from(pdfRef.current).save();
       toast.success(t('noteDetail.exportedPdf'));
     } catch {
       toast.error('PDF export failed');
     }
-  }, [content, title, t]);
+  }, [title, t]);
 
   useEffect(() => {
     const handler = (e: KeyboardEvent) => {
@@ -256,6 +263,7 @@ export default function NoteDetailPage() {
                 content={content}
                 onChange={handleContentChange}
                 placeholder={t('noteDetail.startWriting')}
+                getEditor={(e) => { editorRef.current = e; }}
               />
 
               <div className="flex items-center justify-end mt-2">

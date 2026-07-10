@@ -11,9 +11,10 @@ interface Props {
   onChange: (markdown: string) => void
   placeholder?: string
   className?: string
+  getEditor?: (editor: Editor) => void
 }
 
-export default function MarkdownEditor({ content, onChange, placeholder, className }: Props) {
+export default function MarkdownEditor({ content, onChange, placeholder, className, getEditor }: Props) {
   const isInternalUpdate = useRef(false)
   const prevContentRef = useRef(content)
 
@@ -21,6 +22,9 @@ export default function MarkdownEditor({ content, onChange, placeholder, classNa
     extensions: getExtensions(placeholder),
     content,
     contentType: 'markdown',
+    onCreate: ({ editor }) => {
+      getEditor?.(editor)
+    },
     onUpdate: ({ editor }) => {
       isInternalUpdate.current = true
       const md = editor.getMarkdown()
