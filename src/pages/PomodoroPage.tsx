@@ -8,6 +8,7 @@ import { pomodoroApi } from '../api/pomodoro';
 import { tasksApi } from '../api/tasks';
 import { usePomodoroStore } from '../stores/pomodoroStore';
 import { usePomodoroTimer } from '../hooks/usePomodoroTimer';
+import { useBackgroundSound } from '../hooks/useBackgroundSound';
 import { useTranslation } from 'react-i18next';
 import { useAuthStore } from '../stores/authStore';
 import SessionSetup from '../components/pomodoro/SessionSetup';
@@ -44,9 +45,14 @@ export default function PomodoroPage() {
   const [autoStartNext, setAutoStartNext] = useState(preferences?.pomodoroAutoStartBreaks ?? false);
   const [intention, setIntention] = useState('');
   const [linkedTaskId, setLinkedTaskId] = useState('');
+  const [selectedSound, setSelectedSound] = useState<SoundType>('none');
+  const [selectedVolume, setSelectedVolume] = useState(50);
 
   const lastRunningRef = useRef(false);
   const completedTypeRef = useRef<'FOCUS' | 'SHORT_BREAK' | 'LONG_BREAK'>('FOCUS');
+  const customDurationRef = useRef<number | null>(null);
+
+  useBackgroundSound(selectedSound, selectedVolume);
 
   const focusMins = preferences?.pomodoroFocusMinutes || 25;
   const shortBreakMins = preferences?.pomodoroShortBreakMinutes || 5;
@@ -68,8 +74,11 @@ export default function PomodoroPage() {
     mutationFn: (opts: { type: 'FOCUS' | 'SHORT_BREAK' | 'LONG_BREAK'; taskId?: string }) =>
       pomodoroApi.start({ type: opts.type, taskId: opts.taskId }),
     onSuccess: (session) => {
-      startSession(session);
-      startTimer(session.plannedDurationSeconds);
+      const customDur = customDurationRef.current;
+      customDurationRef.current = null;
+      const finalSession = customDur ? { ...session, plannedDurationSeconds: customDur } : session;
+      startSession(finalSession);
+      startTimer(finalSession.plannedDurationSeconds);
       completedTypeRef.current = session.type as 'FOCUS' | 'SHORT_BREAK' | 'LONG_BREAK';
       setCurrentType(session.type as 'FOCUS' | 'SHORT_BREAK' | 'LONG_BREAK');
     },
@@ -78,6 +87,9 @@ export default function PomodoroPage() {
 
   const handleStart = (opts: { type: 'focus' | 'shortBreak' | 'longBreak'; duration: number; taskId?: string; intention?: string; sound?: SoundType; volume?: number }) => {
     const apiType = opts.type === 'focus' ? 'FOCUS' : opts.type === 'shortBreak' ? 'SHORT_BREAK' : 'LONG_BREAK';
+    customDurationRef.current = opts.duration;
+    setSelectedSound(opts.sound || 'none');
+    setSelectedVolume(opts.volume ?? 50);
     setIntention(opts.intention || '');
     setLinkedTaskId(opts.taskId || '');
     setPhase('focus');
@@ -125,6 +137,7 @@ export default function PomodoroPage() {
 
   const handleSkip = () => {
     if (!activeSession) return;
+    setSelectedSound('none');
     pomodoroApi.end(activeSession.id).then(() => {
       stopTimer();
       endSession();
@@ -135,6 +148,7 @@ export default function PomodoroPage() {
 
   const handleStop = () => {
     if (!activeSession) return;
+    setSelectedSound('none');
     pomodoroApi.interrupt(activeSession.id).then(() => {
       stopTimer();
       endSession();
@@ -261,6 +275,10 @@ export default function PomodoroPage() {
             onSkip={handleSkip}
             onStop={handleStop}
             onExit={handleExitFullscreen}
+            sound={selectedSound}
+            volume={selectedVolume}
+            onSoundChange={setSelectedSound}
+            onVolumeChange={setSelectedVolume}
           />
         )}
 

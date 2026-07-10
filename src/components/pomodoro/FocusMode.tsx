@@ -4,7 +4,6 @@ import { motion } from 'framer-motion';
 import { useTranslation } from 'react-i18next';
 import TimerRing from './TimerRing';
 import SoundSelector, { SoundType } from './SoundSelector';
-import { useBackgroundSound } from '@/hooks/useBackgroundSound';
 
 interface Props {
   timeRemaining: number;
@@ -19,6 +18,10 @@ interface Props {
   onSkip: () => void;
   onStop: () => void;
   onExit: () => void;
+  sound: SoundType;
+  volume: number;
+  onSoundChange: (s: SoundType) => void;
+  onVolumeChange: (v: number) => void;
 }
 
 const QUOTES = [
@@ -33,13 +36,10 @@ const QUOTES = [
 export default function FocusMode({
   timeRemaining, totalDuration, color, label, taskName, intention,
   isRunning, isPaused, onPauseResume, onSkip, onStop, onExit,
+  sound, volume, onSoundChange, onVolumeChange,
 }: Props) {
   const { t } = useTranslation();
   const [quoteIndex, setQuoteIndex] = useState(0);
-  const [sound, setSound] = useState<SoundType>('none');
-  const [volume, setVolume] = useState(50);
-
-  useBackgroundSound(sound, volume);
 
   useEffect(() => {
     const interval = setInterval(() => {
@@ -133,7 +133,7 @@ export default function FocusMode({
       </p>
 
       <div className="mt-8 w-72">
-        <SoundSelector selected={sound} onSelect={setSound} volume={volume} onVolumeChange={setVolume} />
+        <SoundSelector selected={sound} onSelect={onSoundChange} volume={volume} onVolumeChange={onVolumeChange} />
       </div>
 
       <motion.p
