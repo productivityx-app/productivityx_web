@@ -313,7 +313,14 @@
     "unpin": "Unpin note",
     "delete": "Delete note",
     "created": "Created",
-    "updated": "Updated"
+    "updated": "Updated",
+    "exportMd": "Export as Markdown",
+    "exportPdf": "Export as PDF",
+    "exportedMd": "Note exported as .md",
+    "exportedPdf": "Note exported as PDF",
+    "splitView": "Split view",
+    "sourceMode": "Source",
+    "previewMode": "Preview"
   },
   "tasks": {
     "title": "Tasks",

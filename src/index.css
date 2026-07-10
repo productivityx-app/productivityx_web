@@ -769,3 +769,419 @@
 .flatpickr-rContainer {
   overflow: visible !important;
 }
+
+/* TipTap / ProseMirror editor styles */
+
+.ProseMirror {
+  outline: none;
+  min-height: 200px;
+  padding: 0;
+  font-size: 14px;
+  line-height: 1.75;
+  color: hsl(var(--foreground));
+}
+
+.ProseMirror p.is-editor-empty:first-child::before {
+  content: attr(data-placeholder);
+  float: left;
+  color: hsl(var(--muted-foreground) / 0.4);
+  pointer-events: none;
+  height: 0;
+  font-style: normal;
+}
+
+.ProseMirror h1 {
+  font-size: 1.875rem;
+  font-weight: 700;
+  margin: 1em 0 0.5em;
+  line-height: 1.3;
+  color: hsl(var(--foreground));
+}
+
+.ProseMirror h2 {
+  font-size: 1.5rem;
+  font-weight: 600;
+  margin: 0.83em 0 0.5em;
+  line-height: 1.35;
+  color: hsl(var(--foreground));
+}
+
+.ProseMirror h3 {
+  font-size: 1.25rem;
+  font-weight: 600;
+  margin: 0.67em 0 0.5em;
+  line-height: 1.4;
+  color: hsl(var(--foreground));
+}
+
+.ProseMirror h4,
+.ProseMirror h5,
+.ProseMirror h6 {
+  font-weight: 600;
+  margin: 0.5em 0 0.3em;
+  color: hsl(var(--foreground));
+}
+
+.ProseMirror p {
+  margin: 0.5em 0;
+  color: hsl(var(--foreground));
+}
+
+.ProseMirror strong {
+  font-weight: 700;
+  color: hsl(var(--foreground));
+}
+
+.ProseMirror em {
+  font-style: italic;
+}
+
+.ProseMirror u {
+  text-decoration: underline;
+}
+
+.ProseMirror s,
+.ProseMirror strike {
+  text-decoration: line-through;
+}
+
+.ProseMirror a {
+  color: hsl(var(--primary));
+  text-decoration: underline;
+  text-underline-offset: 2px;
+  cursor: pointer;
+}
+
+.ProseMirror a:hover {
+  opacity: 0.85;
+}
+
+.ProseMirror blockquote {
+  border-left: 3px solid hsl(var(--primary));
+  padding-left: 1rem;
+  margin: 0.75em 0;
+  color: hsl(var(--muted-foreground));
+  font-style: italic;
+}
+
+.ProseMirror pre {
+  background: hsl(var(--background));
+  border: 1px solid hsl(var(--border));
+  border-radius: 0.5rem;
+  padding: 0.75rem 1rem;
+  margin: 0.75em 0;
+  overflow-x: auto;
+  font-family: 'JetBrains Mono', 'Fira Code', 'Consolas', monospace;
+  font-size: 13px;
+  line-height: 1.65;
+}
+
+.ProseMirror pre code {
+  color: hsl(var(--foreground));
+  background: none;
+  padding: 0;
+  font-size: inherit;
+}
+
+.ProseMirror code {
+  background: hsl(var(--muted));
+  border-radius: 0.25rem;
+  padding: 0.125rem 0.375rem;
+  font-size: 0.875em;
+  color: hsl(var(--foreground));
+  font-family: 'JetBrains Mono', 'Fira Code', 'Consolas', monospace;
+}
+
+.ProseMirror hr {
+  border: none;
+  border-top: 2px solid hsl(var(--border));
+  margin: 1.5em 0;
+}
+
+.ProseMirror ul,
+.ProseMirror ol {
+  padding-left: 1.5rem;
+  margin: 0.5em 0;
+}
+
+.ProseMirror ul {
+  list-style-type: disc;
+}
+
+.ProseMirror ol {
+  list-style-type: decimal;
+}
+
+.ProseMirror li {
+  margin: 0.25em 0;
+}
+
+.ProseMirror li p {
+  margin: 0;
+}
+
+/* Task list specific styles */
+.ProseMirror ul[data-type="taskList"] {
+  list-style: none;
+  padding-left: 0;
+}
+
+.ProseMirror ul[data-type="taskList"] li {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.5rem;
+}
+
+.ProseMirror ul[data-type="taskList"] li > label {
+  flex-shrink: 0;
+  margin-top: 0.25rem;
+}
+
+.ProseMirror ul[data-type="taskList"] li > label input[type="checkbox"] {
+  accent-color: hsl(var(--primary));
+  cursor: pointer;
+}
+
+.ProseMirror ul[data-type="taskList"] li > div {
+  flex: 1;
+}
+
+.ProseMirror ul[data-type="taskList"] li[data-checked="true"] > div > p {
+  text-decoration: line-through;
+  opacity: 0.6;
+}
+
+/* Table styles */
+.ProseMirror table {
+  border-collapse: collapse;
+  width: 100%;
+  margin: 0.75em 0;
+  overflow: hidden;
+}
+
+.ProseMirror th,
+.ProseMirror td {
+  border: 1px solid hsl(var(--border));
+  padding: 0.5rem 0.75rem;
+  text-align: left;
+  vertical-align: top;
+  min-width: 80px;
+}
+
+.ProseMirror th {
+  background: hsl(var(--muted));
+  font-weight: 600;
+}
+
+.ProseMirror td {
+  background: hsl(var(--card));
+}
+
+.ProseMirror th:first-child,
+.ProseMirror td:first-child {
+  padding-left: 0.5rem;
+}
+
+/* Table resize cursor */
+.ProseMirror .column-resize-handle {
+  position: absolute;
+  right: -2px;
+  top: 0;
+  bottom: 0;
+  width: 4px;
+  background: hsl(var(--primary));
+  pointer-events: none;
+}
+
+/* Image styles */
+.ProseMirror img {
+  max-width: 100%;
+  height: auto;
+  border-radius: 0.5rem;
+  margin: 0.75em 0;
+}
+
+.ProseMirror img.ProseMirror-selectednode {
+  outline: 3px solid hsl(var(--primary));
+  outline-offset: 2px;
+}
+
+/* Highlight mark */
+.ProseMirror mark {
+  background: hsl(var(--warning) / 0.3);
+  color: hsl(var(--foreground));
+  border-radius: 2px;
+  padding: 0 2px;
+}
+
+/* Selected text */
+.ProseMirror ::selection {
+  background: hsl(var(--primary) / 0.2);
+}
+
+/* Focused node outline */
+.ProseMirror .ProseMirror-selectednode {
+  outline: 2px solid hsl(var(--primary) / 0.5);
+  outline-offset: 1px;
+  border-radius: 4px;
+}
+
+/* Gap cursor */
+.ProseMirror-gapcursor {
+  display: none;
+  pointer-events: none;
+  position: relative;
+}
+
+.ProseMirror-gapcursor:after {
+  content: '';
+  display: block;
+  position: absolute;
+  top: -2px;
+  width: 20px;
+  border-top: 1px solid hsl(var(--foreground));
+  animation: ProseMirror-cursor-blink 1.1s steps(2, start) infinite;
+}
+
+@keyframes ProseMirror-cursor-blink {
+  to {
+    visibility: hidden;
+  }
+}
+
+.ProseMirror-focused .ProseMirror-gapcursor {
+  display: block;
+}
+
+/* Bubble menu styling */
+.tippy-box[data-theme~='editor-bubble'] {
+  background: transparent;
+  border: none;
+  box-shadow: none;
+}
+
+/* Code block language selector area */
+.ProseMirror pre code.hljs {
+  padding: 0;
+}
+
+/* Lowlight / code syntax highlighting */
+.hljs {
+  color: hsl(var(--foreground));
+}
+
+.hljs-comment,
+.hljs-quote {
+  color: hsl(var(--muted-foreground));
+  font-style: italic;
+}
+
+.hljs-keyword,
+.hljs-selector-tag,
+.hljs-literal,
+.hljs-section,
+.hljs-link {
+  color: #c678dd;
+}
+
+.hljs-string,
+.hljs-title,
+.hljs-name,
+.hljs-type,
+.hljs-attribute,
+.hljs-symbol,
+.hljs-bullet,
+.hljs-addition,
+.hljs-variable,
+.hljs-template-tag,
+.hljs-template-variable {
+  color: #98c379;
+}
+
+.hljs-number,
+.hljs-deletion,
+.hljs-selector-class,
+.hljs-selector-id,
+.hljs-attr {
+  color: #d19a66;
+}
+
+.hljs-built_in,
+.hljs-builtin-name,
+.hljs-function {
+  color: #61afef;
+}
+
+/* PDF export styles */
+.pdf-export * {
+  color: #1a1a1a !important;
+  background: transparent !important;
+}
+
+.pdf-export code:not([class*="language-"]) {
+  background: #f3f4f6 !important;
+  padding: 2px 6px !important;
+  border-radius: 4px !important;
+  font-size: 11pt !important;
+  font-family: 'JetBrains Mono', monospace !important;
+}
+
+.pdf-export pre {
+  background: #f8f9fa !important;
+  border: 1px solid #e5e7eb !important;
+  border-radius: 8px !important;
+  padding: 12px !important;
+  overflow-x: auto !important;
+}
+
+.pdf-export pre code {
+  font-size: 10pt !important;
+  line-height: 1.5 !important;
+}
+
+.pdf-export blockquote {
+  border-left: 3px solid #6b7280 !important;
+  padding-left: 16px !important;
+  color: #6b7280 !important;
+  margin: 16px 0 !important;
+}
+
+.pdf-export table {
+  border-collapse: collapse !important;
+  width: 100% !important;
+  margin: 16px 0 !important;
+}
+
+.pdf-export th,
+.pdf-export td {
+  border: 1px solid #d1d5db !important;
+  padding: 8px 12px !important;
+  text-align: left !important;
+}
+
+.pdf-export th {
+  background: #f3f4f6 !important;
+  font-weight: 600 !important;
+}
+
+.pdf-export img {
+  max-width: 100% !important;
+  height: auto !important;
+}
+
+.pdf-export ul,
+.pdf-export ol {
+  padding-left: 24px !important;
+  margin: 8px 0 !important;
+}
+
+.pdf-export li {
+  margin: 4px 0 !important;
+}
+
+.pdf-export h1 { font-size: 24pt !important; margin: 16px 0 8px !important; }
+.pdf-export h2 { font-size: 20pt !important; margin: 14px 0 6px !important; }
+.pdf-export h3 { font-size: 16pt !important; margin: 12px 0 4px !important; }
+.pdf-export h4 { font-size: 14pt !important; margin: 10px 0 4px !important; }
+.pdf-export p { margin: 8px 0 !important; }
+.pdf-export hr { border: none !important; border-top: 1px solid #d1d5db !important; margin: 16px 0 !important; }

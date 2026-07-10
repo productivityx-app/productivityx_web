@@ -2,12 +2,10 @@ import { useState, useEffect, useCallback, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import {
-  ArrowLeft, ArrowRight, Pin, PinOff, Trash2, Maximize2, Minimize2,
-  PanelRightOpen, PanelRightClose, Sparkles,
+  ArrowLeft, Pin, PinOff, Trash2, Maximize2, Minimize2,
+  PanelRightOpen, PanelRightClose, FileDown, FileText,
 } from 'lucide-react';
 import { toast } from 'sonner';
-import ReactMarkdown from 'react-markdown';
-import remarkGfm from 'remark-gfm';
 import { cn } from '@/lib/utils';
 import { notesApi } from '@/api/notes';
 import { useTranslation } from 'react-i18next';
@@ -17,9 +15,10 @@ import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip
 import {
   DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import NoteToolbar from '@/components/notes/NoteToolbar';
 import NoteSidebar from '@/components/notes/NoteSidebar';
 import ReadingProgress from '@/components/notes/ReadingProgress';
+import MarkdownEditor from '@/components/notes/markdown-editor';
+import html2pdf from 'html2pdf.js';
 
 export default function NoteDetailPage() {
   const { id } = useParams<{ id: string }>();
@@ -29,7 +28,6 @@ export default function NoteDetailPage() {
   const isNew = id === 'new';
   const [title, setTitle] = useState('');
   const [content, setContent] = useState('');
-  const [preview, setPreview] = useState(false);
   const [saveStatus, setSaveStatus] = useState<'idle' | 'saving' | 'saved'>('idle');
   const [immersive, setImmersive] = useState(false);
   const [sidebarOpen, setSidebarOpen] = useState(true);
@@ -37,6 +35,7 @@ export default function NoteDetailPage() {
   const noteIdRef = useRef<string | null>(isNew ? null : id || null);
   const versionRef = useRef<number>(0);
   const titleRef = useRef<HTMLTextAreaElement>(null);
+  const pdfRef = useRef<HTMLDivElement>(null);
 
   const { data: note } = useQuery({
     queryKey: ['note', id],
@@ -94,27 +93,43 @@ export default function NoteDetailPage() {
     onSuccess: () => { toast.success(t('noteDetail.movedToTrash')); navigate('/notes'); qc.invalidateQueries({ queryKey: ['notes'] }); },
   });
 
-  const insertMarkdown = useCallback((before: string, after = '') => {
-    const ta = document.getElementById('note-content') as HTMLTextAreaElement;
-    if (!ta) return;
-    const start = ta.selectionStart, end = ta.selectionEnd;
-    const selected = content.slice(start, end);
-    const newContent = content.slice(0, start) + before + selected + after + content.slice(end);
-    handleContentChange(newContent);
-    setTimeout(() => { ta.focus(); ta.setSelectionRange(start + before.length, start + before.length + selected.length); }, 0);
-  }, [content, handleContentChange]);
+  const exportMd = useCallback(() => {
+    const blob = new Blob([content], { type: 'text/markdown;charset=utf-8' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `${title || 'untitled'}.md`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+    toast.success(t('noteDetail.exportedMd'));
+  }, [content, title, t]);
+
+  const exportPdf = useCallback(async () => {
+    if (!pdfRef.current) return;
+    const opt = {
+      margin: [10, 10],
+      filename: `${title || 'untitled'}.pdf`,
+      image: { type: 'jpeg', quality: 0.98 },
+      html2canvas: { scale: 2, useCORS: true, letterRendering: true },
+      jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' },
+    };
+    try {
+      await html2pdf().set(opt).from(pdfRef.current).save();
+      toast.success(t('noteDetail.exportedPdf'));
+    } catch {
+      toast.error('PDF export failed');
+    }
+  }, [content, title, t]);
 
   useEffect(() => {
     const handler = (e: KeyboardEvent) => {
       if (e.key === 'Escape') setImmersive(false);
-      if ((e.metaKey || e.ctrlKey) && e.key === 'Enter') setPreview(!preview);
     };
     window.addEventListener('keydown', handler);
     return () => window.removeEventListener('keydown', handler);
-  }, [preview]);
-
-  const wordCount = content.split(/\s+/).filter(Boolean).length;
-  const readTime = Math.max(1, Math.round(wordCount / 200));
+  }, []);
 
   useEffect(() => {
     if (titleRef.current) {
@@ -130,10 +145,12 @@ export default function NoteDetailPage() {
         'flex flex-col h-full',
         immersive && 'fixed inset-0 z-50 bg-background',
       )}>
-        <header className={cn(
-          'flex items-center gap-2 px-4 py-2 border-b border-border bg-card/50 flex-shrink-0',
-          immersive && 'bg-background/95 backdrop-blur-lg',
-        )}>
+        <header
+          className={cn(
+            'flex items-center gap-2 px-4 py-2 border-b border-border bg-card/50 flex-shrink-0',
+            immersive && 'bg-background/95 backdrop-blur-lg',
+          )}
+        >
           <Tooltip>
             <TooltipTrigger asChild>
               <button onClick={() => navigate('/notes')} className="p-1.5 rounded-lg text-muted-foreground hover:text-foreground hover:bg-accent transition-colors">
@@ -151,8 +168,31 @@ export default function NoteDetailPage() {
 
           <div className="flex-1" />
 
-          {note && (
+          {!isNew && (
             <>
+              <DropdownMenu>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <DropdownMenuTrigger asChild>
+                      <button className="p-1.5 rounded-lg text-muted-foreground hover:text-foreground hover:bg-accent transition-colors">
+                        <FileDown size={14} />
+                      </button>
+                    </DropdownMenuTrigger>
+                  </TooltipTrigger>
+                  <TooltipContent>Export</TooltipContent>
+                </Tooltip>
+                <DropdownMenuContent align="end" className="w-48">
+                  <DropdownMenuItem onClick={exportMd} className="gap-2 cursor-pointer">
+                    <FileText size={14} />
+                    {t('noteDetail.exportMd')}
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={exportPdf} className="gap-2 cursor-pointer">
+                    <FileDown size={14} />
+                    {t('noteDetail.exportPdf')}
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+
               <Tooltip>
                 <TooltipTrigger asChild>
                   <button
@@ -200,39 +240,30 @@ export default function NoteDetailPage() {
           )}
         </header>
 
-        <NoteToolbar
-          preview={preview}
-          onTogglePreview={() => setPreview(!preview)}
-          onInsert={insertMarkdown}
-          saveStatus={saveStatus}
-        />
-
         <div className="flex flex-1 overflow-hidden">
           <div className="flex-1 overflow-y-auto">
-            <div className={cn('max-w-3xl mx-auto py-6 px-4 sm:px-8', immersive && 'max-w-4xl')}>
+            <div className={cn('max-w-4xl mx-auto py-4 px-4 sm:px-6', immersive && 'max-w-5xl')}>
               <textarea
                 ref={titleRef}
                 value={title}
                 onChange={(e) => handleTitleChange(e.target.value)}
                 placeholder={t('noteDetail.untitledPlaceholder')}
-                className="w-full text-3xl font-bold text-foreground bg-transparent outline-none placeholder:text-muted-foreground/40 mb-6 resize-none overflow-hidden"
+                className="w-full text-3xl font-bold text-foreground bg-transparent outline-none placeholder:text-muted-foreground/40 mb-4 resize-none overflow-hidden"
                 rows={1}
               />
-              {preview ? (
-                <div className="prose prose-sm dark:prose-invert max-w-none">
-                  <ReactMarkdown remarkPlugins={[remarkGfm]}>
-                    {content || t('noteDetail.nothingToPreview')}
-                  </ReactMarkdown>
-                </div>
-              ) : (
-                <textarea
-                  id="note-content"
-                  value={content}
-                  onChange={(e) => handleContentChange(e.target.value)}
-                  placeholder={t('noteDetail.startWriting')}
-                  className="w-full min-h-[50vh] bg-transparent text-sm text-foreground placeholder:text-muted-foreground/40 outline-none resize-none leading-relaxed"
-                />
-              )}
+
+              <MarkdownEditor
+                content={content}
+                onChange={handleContentChange}
+                placeholder={t('noteDetail.startWriting')}
+              />
+
+              <div className="flex items-center justify-end mt-2">
+                <span className="text-[10px] text-muted-foreground tabular-nums">
+                  {saveStatus === 'saving' && t('noteDetail.saving')}
+                  {saveStatus === 'saved' && t('noteDetail.saved')}
+                </span>
+              </div>
             </div>
           </div>
 
@@ -249,6 +280,31 @@ export default function NoteDetailPage() {
               </motion.div>
             )}
           </AnimatePresence>
+        </div>
+
+        <div style={{ position: 'absolute', left: '-9999px', top: 0, zIndex: -1, width: '210mm' }}>
+          <div
+            ref={pdfRef}
+            className="pdf-export"
+            style={{
+              padding: '20mm',
+              background: '#ffffff',
+              color: '#1a1a1a',
+              fontFamily: 'Georgia, "Times New Roman", serif',
+              fontSize: '12pt',
+              lineHeight: 1.6,
+              width: '190mm',
+            }}
+          >
+            {title && (
+              <div style={{ textAlign: 'center', marginBottom: '15mm' }}>
+                <h1 style={{ fontSize: '24pt', fontWeight: 'bold', margin: 0, color: '#1a1a1a' }}>{title}</h1>
+              </div>
+            )}
+            <div className="prose prose-sm max-w-none !text-[#1a1a1a]" style={{ color: '#1a1a1a' }}>
+              {content}
+            </div>
+          </div>
         </div>
       </div>
     </TooltipProvider>
