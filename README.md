@@ -49,7 +49,7 @@ Every feature is fully implemented — a TipTap-powered rich text editor with Ma
   <tr>
     <td align="center"><img src="images/Web/dahboard.png" alt="Dashboard" width="240" /><br/><b>Dashboard</b></td>
     <td align="center"><img src="images/Web/auth.png" alt="Authentication" width="240" /><br/><b>Authentication</b></td>
-    <td align="center"><img src="images/Web/notes.png" alt="Notes" width="240" /><br/><b>Notes Editor</b></td>
+    <td align="center"><img src="images/Web/notes.png" alt="Notes" width="240" /><br/><b>Notes</b></td>
   </tr>
   <tr>
     <td align="center"><img src="images/Web/tasks.png" alt="Tasks" width="240" /><br/><b>Tasks</b></td>
